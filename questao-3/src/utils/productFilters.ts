@@ -37,3 +37,17 @@ export function sortProducts(products: Product[], sort: SortState | null): Produ
   // React Query — ordenar no lugar corromperia os dados em cache.
   return [...products].sort((a, b) => compare(a, b) * direction)
 }
+
+export function getTotalPages(itemCount: number, pageSize: number): number {
+  // Nunca zero: uma lista vazia ainda é "página 1 de 1".
+  return Math.max(1, Math.ceil(itemCount / pageSize))
+}
+
+export function paginateProducts(
+  products: Product[],
+  page: number,
+  pageSize: number,
+): Product[] {
+  const start = (page - 1) * pageSize
+  return products.slice(start, start + pageSize)
+}

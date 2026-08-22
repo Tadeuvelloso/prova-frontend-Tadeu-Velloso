@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { EmptyState } from '../components/common/EmptyState'
 import { ErrorState } from '../components/common/ErrorState'
+import { Pagination } from '../components/common/Pagination'
 import { SearchInput } from '../components/common/SearchInput'
 import { Select } from '../components/common/Select'
 import { ProductsTable } from '../components/modules/ProductsTable/ProductsTable'
@@ -22,8 +23,19 @@ export function ProductsPage() {
   // Se as categorias falharem, o select some mas a tabela continua de pé.
   const { data: categories = [] } = useCategories()
 
-  const { search, setSearch, sort, toggleSort, visibleProducts, totalCount } =
-    useProductsFilters(data ?? [])
+  const {
+    search,
+    setSearch,
+    sort,
+    toggleSort,
+    page,
+    setPage,
+    resetPage,
+    totalPages,
+    visibleProducts,
+    matchedCount,
+    totalCount,
+  } = useProductsFilters(data ?? [])
 
   if (isPending) {
     return (
@@ -61,7 +73,10 @@ export function ProductsPage() {
             id="category-filter"
             label="Filtrar por categoria"
             value={category}
-            onChange={setCategory}
+            onChange={(value) => {
+              setCategory(value)
+              resetPage()
+            }}
             options={[
               { value: ALL_CATEGORIES, label: 'Todas as categorias' },
               ...categories.map((name) => ({ value: name, label: name })),
@@ -73,7 +88,7 @@ export function ProductsPage() {
           {isFetching
             ? 'Atualizando…'
             : hasSearch
-              ? `${visibleProducts.length} de ${totalCount} produtos`
+              ? `${matchedCount} de ${totalCount} produtos`
               : `${totalCount} produtos`}
         </p>
       </div>
@@ -88,9 +103,15 @@ export function ProductsPage() {
           }
         />
       ) : (
-        <div className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
-          <ProductsTable products={visibleProducts} sort={sort} onSort={toggleSort} />
-        </div>
+        <>
+          <div
+            className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}
+          >
+            <ProductsTable products={visibleProducts} sort={sort} onSort={toggleSort} />
+          </div>
+
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </>
       )}
     </div>
   )
