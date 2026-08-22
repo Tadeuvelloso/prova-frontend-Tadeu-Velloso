@@ -61,6 +61,22 @@ export function filterByPriceRange(
 }
 
 /**
+ * Ordena do cadastro mais recente para o mais antigo.
+ *
+ * Sem isto a lista segue a ordem de inserção do banco, e um produto recém
+ * cadastrado vai para o fim — com 5 por página, ele nasce fora da tela e o
+ * usuário fica sem ver o que acabou de criar.
+ *
+ * `sort` muta o array, e este vem do cache do React Query: ordenar no lugar
+ * corromperia o dado em cache. Daí a cópia.
+ */
+export function sortByNewest(products: Product[]): Product[] {
+  return [...products].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  )
+}
+
+/**
  * Quantas páginas a lista ocupa.
  *
  * Nunca devolve zero: uma lista vazia continua sendo "página 1 de 1". Zero

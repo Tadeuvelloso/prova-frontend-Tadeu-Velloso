@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '../components/common/Button'
 import { EmptyState } from '../components/common/EmptyState'
 import { ErrorState } from '../components/common/ErrorState'
@@ -8,7 +9,9 @@ import { ProductsTable } from '../components/modules/ProductsTable/ProductsTable
 import { ProductsTableSkeleton } from '../components/modules/ProductsTable/ProductsTableSkeleton'
 import { useProducts } from '../hooks/useProducts'
 import { useProductsFilters } from '../hooks/useProductsFilters'
+import { useAuthStore } from '../store/authStore'
 import type { ProductStatusFilter } from '../types/product'
+import { can } from '../utils/permissions'
 import { statusToFilters } from '../utils/productFilters'
 
 export function ProductsPage() {
@@ -25,6 +28,12 @@ export function ProductsPage() {
   const products = useMemo(() => data ?? [], [data])
   const filters = useProductsFilters(products)
 
+  // A regra de quem pode o quê mora em `utils/permissions`, espelhando o
+  // `authorize` do backend — a tela só consulta.
+  const role = useAuthStore((state) => state.user?.role)
+  const canCreate = can(role, 'create')
+  const canEdit = can(role, 'update')
+
   const isFiltering = filters.hasActiveFilters || status !== 'all'
 
   return (
@@ -40,6 +49,15 @@ export function ProductsPage() {
           <p aria-live="polite" className="font-mono text-xs text-content-muted tabular-nums">
             {formatCount(filters.matchedProducts.length, products.length, isFiltering)}
           </p>
+        )}
+
+        {canCreate && (
+          <Link
+            to="/produtos/novo"
+            className="ml-auto rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-contrast transition-colors hover:bg-brand-hover"
+          >
+            Novo produto
+          </Link>
         )}
       </div>
 
@@ -89,7 +107,7 @@ export function ProductsPage() {
           <div
             className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}
           >
-            <ProductsTable products={filters.visibleProducts} />
+            <ProductsTable products={filters.visibleProducts} canEdit={canEdit} />
           </div>
 
           <Pagination

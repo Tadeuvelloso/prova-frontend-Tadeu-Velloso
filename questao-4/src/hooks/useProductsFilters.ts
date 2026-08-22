@@ -7,6 +7,7 @@ import {
   getTotalPages,
   paginate,
   parsePriceInput,
+  sortByNewest,
 } from '../utils/productFilters'
 
 /**
@@ -81,7 +82,7 @@ export function useProductsFilters(products: Product[]) {
     minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice
 
   const matchedProducts = useMemo(
-    () => filterByPriceRange(filterByName(products, name), minPrice, maxPrice),
+    () => sortByNewest(filterByPriceRange(filterByName(products, name), minPrice, maxPrice)),
     [products, name, minPrice, maxPrice],
   )
 

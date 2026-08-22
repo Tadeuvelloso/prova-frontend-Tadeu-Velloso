@@ -21,10 +21,16 @@ export const ROLE_LABEL: Record<UserRole, string> = {
  * Duplicar a regra aqui é intencional, mas é duplicação — se o backend mudar
  * quem pode o quê, este arquivo precisa acompanhar.
  */
+/** Quem pode criar e editar. Exportado porque o `RoleRoute` guarda as rotas
+ *  de formulário com a mesma lista — a regra fica declarada uma vez só. */
+export const PRODUCT_WRITE_ROLES = ['admin', 'gerente'] as const satisfies readonly UserRole[]
+
+export const PRODUCT_DELETE_ROLES = ['admin'] as const satisfies readonly UserRole[]
+
 const ROLES_BY_ACTION: Record<ProductAction, readonly UserRole[]> = {
-  create: ['admin', 'gerente'],
-  update: ['admin', 'gerente'],
-  delete: ['admin'],
+  create: PRODUCT_WRITE_ROLES,
+  update: PRODUCT_WRITE_ROLES,
+  delete: PRODUCT_DELETE_ROLES,
 }
 
 /**

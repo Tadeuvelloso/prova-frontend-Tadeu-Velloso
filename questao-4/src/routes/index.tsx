@@ -2,9 +2,12 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '../components/layout/AppLayout'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
+import { ProductFormPage } from '../pages/ProductFormPage'
 import { ProductsPage } from '../pages/ProductsPage'
+import { PRODUCT_WRITE_ROLES } from '../utils/permissions'
 import { DEFAULT_AUTHENTICATED_ROUTE, PublicOnlyRoute } from './PublicOnlyRoute'
 import { ProtectedRoute } from './ProtectedRoute'
+import { RoleRoute } from './RoleRoute'
 
 /**
  * Mapa de rotas.
@@ -28,6 +31,16 @@ export const router = createBrowserRouter([
           // A raiz não tem tela própria: manda para a listagem.
           { path: '/', element: <Navigate to={DEFAULT_AUTHENTICATED_ROUTE} replace /> },
           { path: '/produtos', element: <ProductsPage /> },
+
+          // As telas de escrita ficam sob mais uma guarda: ter sessão não
+          // basta, o papel precisa permitir.
+          {
+            element: <RoleRoute allow={PRODUCT_WRITE_ROLES} />,
+            children: [
+              { path: '/produtos/novo', element: <ProductFormPage /> },
+              { path: '/produtos/:id/editar', element: <ProductFormPage /> },
+            ],
+          },
         ],
       },
     ],

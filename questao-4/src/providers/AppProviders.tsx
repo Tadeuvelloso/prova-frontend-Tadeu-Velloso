@@ -34,7 +34,17 @@ export function AppProviders({ children }: { children: ReactNode }) {
          */
         preventDuplicate
         maxSnack={3}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        /**
+         * Topo, e não rodapé, por um motivo medido: os botões de ação dos
+         * formulários ficam alinhados à direita no fim do conteúdo, e um
+         * snackbar ancorado embaixo à direita cobre exatamente essa área.
+         * Verifiquei com `elementFromPoint` no centro do botão "Cadastrar
+         * produto": quem respondia era o parágrafo do toast, e o clique não
+         * chegava ao botão enquanto a mensagem estivesse na tela.
+         *
+         * Feedback não pode disputar espaço com controle de ação.
+         */
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         {children}
       </SnackbarProvider>

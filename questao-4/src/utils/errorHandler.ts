@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { ApiErrorPayload } from '../types/api'
+import type { ApiErrorPayload, ApiValidationDetail } from '../types/api'
 
 /**
  * Erro normalizado da aplicação.
@@ -114,4 +114,27 @@ export function toAppError(error: unknown): AppError {
   }
 
   return new AppError(GENERIC_MESSAGE)
+}
+
+/**
+ * Extrai os erros de campo que o backend devolve num 400.
+ *
+ * O `details` do `ApiErrorPayload` é `unknown` porque muda de formato por tipo
+ * de erro: o middleware de validação manda um array `{ path, message }` vindo
+ * do Zod, o de autorização manda `{ requiredRoles, userRole }`. Esta função é
+ * a fronteira onde esse `unknown` vira algo utilizável — validando item a
+ * item, em vez de confiar num cast.
+ */
+export function getValidationDetails(error: AppError): ApiValidationDetail[] | null {
+  if (!Array.isArray(error.details)) return null
+
+  const details = error.details.filter(
+    (item): item is ApiValidationDetail =>
+      typeof item === 'object' &&
+      item !== null &&
+      typeof (item as ApiValidationDetail).path === 'string' &&
+      typeof (item as ApiValidationDetail).message === 'string',
+  )
+
+  return details.length > 0 ? details : null
 }

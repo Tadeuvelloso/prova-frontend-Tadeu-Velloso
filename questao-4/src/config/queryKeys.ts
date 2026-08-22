@@ -22,4 +22,16 @@ export const queryKeys = {
    * resposta é guardada no seu próprio lugar, em vez de sobrescrever a tela.
    */
   products: (filters: ProductFilters = {}) => ['products', filters] as const,
+
+  /**
+   * Prefixo de todas as listagens, qualquer que seja o filtro.
+   *
+   * É o alvo da invalidação depois de criar, editar ou excluir: como o filtro
+   * entra na chave, existe um cache por combinação, e invalidar só a
+   * combinação visível deixaria as outras desatualizadas.
+   */
+  productsRoot: ['products'] as const,
+
+  /** Um produto específico, carregado pela tela de edição. */
+  product: (id: string) => ['product', id] as const,
 } as const

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { formatCurrency, formatNumber } from '../../../utils/formatters'
 import type { Product } from '../../../types/product'
 import { PRODUCT_COLUMNS } from './columns'
@@ -5,9 +6,11 @@ import { StatusBadge } from './StatusBadge'
 
 interface ProductsTableProps {
   products: Product[]
+  /** Some a coluna inteira quando o papel não permite nenhuma ação. */
+  canEdit: boolean
 }
 
-export function ProductsTable({ products }: ProductsTableProps) {
+export function ProductsTable({ products, canEdit }: ProductsTableProps) {
   return (
     // A rolagem fica no contêiner, não na página: em tela estreita a tabela
     // desliza dentro da própria caixa e o restante do layout não se mexe.
@@ -33,12 +36,18 @@ export function ProductsTable({ products }: ProductsTableProps) {
                 {column.label}
               </th>
             ))}
+
+            {canEdit && (
+              <th scope="col" className="px-4 py-3 text-right">
+                <span className="sr-only">Ações</span>
+              </th>
+            )}
           </tr>
         </thead>
 
         <tbody>
           {products.map((product) => (
-            <ProductRow key={product._id} product={product} />
+            <ProductRow key={product._id} product={product} canEdit={canEdit} />
           ))}
         </tbody>
       </table>
@@ -46,7 +55,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
   )
 }
 
-function ProductRow({ product }: { product: Product }) {
+function ProductRow({ product, canEdit }: { product: Product; canEdit: boolean }) {
   // O backend expõe `minStockAlert` justamente para isto. Mostrar o número
   // sem o alerta deixaria o dado que importa invisível numa lista longa.
   const isLowStock = product.stock <= product.minStockAlert
@@ -86,6 +95,25 @@ function ProductRow({ product }: { product: Product }) {
       <td className="px-4 py-3">
         <StatusBadge active={product.active} />
       </td>
+
+      {canEdit && (
+        <td className="px-4 py-3 text-right">
+          {/*
+            `Link`, e não botão com `navigate`: editar é ir para outro
+            endereço, então merece ser abrível em nova aba e ter o alvo
+            visível na barra de status.
+          */}
+          <Link
+            to={`/produtos/${product._id}/editar`}
+            className="rounded px-2 py-1 text-sm font-medium text-brand transition-colors hover:bg-brand-soft"
+          >
+            Editar
+            {/* Sem isto, um leitor de tela ouviria só "Editar" repetido em
+                todas as linhas, sem saber de qual produto. */}
+            <span className="sr-only"> {product.name}</span>
+          </Link>
+        </td>
+      )}
     </tr>
   )
 }
