@@ -1,5 +1,7 @@
 import { ThemeToggle } from './components/common/ThemeToggle'
+import { AppProviders } from './providers/AppProviders'
 import { formatCurrency, formatNumber } from './utils/formatters'
+import { notify } from './utils/notify'
 
 /**
  * TEMPORÁRIO — amostra dos tokens de tema.
@@ -28,6 +30,14 @@ const rows = [
 ]
 
 function App() {
+  return (
+    <AppProviders>
+      <TokensPreview />
+    </AppProviders>
+  )
+}
+
+function TokensPreview() {
   return (
     <div className="min-h-screen">
       <header className="border-b border-border-subtle bg-surface">
@@ -109,6 +119,32 @@ function App() {
                 className="rounded-md px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger-soft"
               >
                 Excluir
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 border-t border-border-subtle pt-5">
+              <button
+                type="button"
+                onClick={() => notify.success('Produto cadastrado com sucesso.')}
+                className="rounded-md border border-border-strong bg-surface px-3 py-1.5 text-sm text-content transition-colors hover:border-brand hover:text-brand"
+              >
+                Testar sucesso
+              </button>
+
+              <button
+                type="button"
+                onClick={() => notify.error('SKU já cadastrado.')}
+                className="rounded-md border border-border-strong bg-surface px-3 py-1.5 text-sm text-content transition-colors hover:border-brand hover:text-brand"
+              >
+                Testar erro
+              </button>
+
+              <button
+                type="button"
+                onClick={() => notify.info('Sessão expirada. Faça login novamente.')}
+                className="rounded-md border border-border-strong bg-surface px-3 py-1.5 text-sm text-content transition-colors hover:border-brand hover:text-brand"
+              >
+                Testar aviso
               </button>
             </div>
 
