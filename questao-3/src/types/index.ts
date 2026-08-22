@@ -1,2 +1,9 @@
 export type { ApiErrorInfo } from './api'
-export type { Category, Product, ProductRating } from './product'
+export type {
+  Category,
+  Product,
+  ProductRating,
+  SortField,
+  SortOrder,
+  SortState,
+} from './product'

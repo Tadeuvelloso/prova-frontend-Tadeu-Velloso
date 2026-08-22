@@ -9,7 +9,8 @@ export function ProductsPage() {
   const { data, isPending, isError, error, refetch, isFetching } = useProducts()
 
   // Chamado antes dos early returns: hook não pode ficar atrás de condicional.
-  const { search, setSearch, visibleProducts, totalCount } = useProductsFilters(data ?? [])
+  const { search, setSearch, sort, toggleSort, visibleProducts, totalCount } =
+    useProductsFilters(data ?? [])
 
   if (isPending) {
     return (
@@ -57,7 +58,7 @@ export function ProductsPage() {
           }
         />
       ) : (
-        <ProductsTable products={visibleProducts} />
+        <ProductsTable products={visibleProducts} sort={sort} onSort={toggleSort} />
       )}
     </div>
   )

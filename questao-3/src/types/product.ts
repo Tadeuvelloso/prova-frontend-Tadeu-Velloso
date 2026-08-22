@@ -19,3 +19,12 @@ export interface Product {
  * conjunto de valores é conhecido em tempo de compilação.
  */
 export type Category = string
+
+export type SortField = 'title' | 'price' | 'rating'
+
+export type SortOrder = 'asc' | 'desc'
+
+export interface SortState {
+  field: SortField
+  order: SortOrder
+}
