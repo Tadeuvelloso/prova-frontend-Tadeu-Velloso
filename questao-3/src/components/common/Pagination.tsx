@@ -4,11 +4,11 @@ interface PaginationProps {
   onChange: (page: number) => void
 }
 
+const buttonClass =
+  'rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-sm text-content transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border-subtle disabled:hover:text-content'
+
 export function Pagination({ page, totalPages, onChange }: PaginationProps) {
   if (totalPages <= 1) return null
-
-  const buttonClass =
-    'rounded-md border border-border-subtle bg-surface px-3 py-1.5 text-sm text-content transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border-subtle disabled:hover:text-content'
 
   return (
     <nav aria-label="Paginação" className="flex items-center justify-end gap-3">
@@ -21,8 +21,12 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
         Anterior
       </button>
 
-      <span aria-live="polite" className="text-sm text-content-muted">
-        Página {page} de {totalPages}
+      <span aria-live="polite" className="font-mono text-xs text-content-muted tabular-nums">
+        <span className="sr-only">Página </span>
+        {page}
+        <span aria-hidden="true"> / </span>
+        <span className="sr-only"> de </span>
+        {totalPages}
       </span>
 
       <button

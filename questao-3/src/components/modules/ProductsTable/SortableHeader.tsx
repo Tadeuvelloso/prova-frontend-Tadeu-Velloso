@@ -1,4 +1,5 @@
 import type { SortField, SortState } from '../../../types/product'
+import { headerCellClass } from './columns'
 
 interface SortableHeaderProps {
   field: SortField
@@ -19,20 +20,16 @@ export function SortableHeader({
   const ariaSort = isActive ? (sort.order === 'asc' ? 'ascending' : 'descending') : 'none'
 
   return (
-    <th
-      scope="col"
-      aria-sort={ariaSort}
-      className={`px-4 py-3 font-medium ${align === 'right' ? 'text-right' : 'text-left'}`}
-    >
+    <th scope="col" aria-sort={ariaSort} className={headerCellClass(align)}>
       <button
         type="button"
         onClick={() => onSort(field)}
-        className={`inline-flex items-center gap-1 tracking-wide uppercase transition hover:text-brand ${
+        className={`inline-flex items-center gap-1.5 transition-colors hover:text-brand ${
           isActive ? 'text-brand' : ''
         }`}
       >
         {label}
-        <span aria-hidden="true" className={isActive ? '' : 'opacity-30'}>
+        <span aria-hidden="true" className={isActive ? '' : 'opacity-25'}>
           {isActive && sort.order === 'desc' ? '↓' : '↑'}
         </span>
       </button>

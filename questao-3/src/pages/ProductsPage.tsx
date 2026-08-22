@@ -5,6 +5,7 @@ import { Pagination } from '../components/common/Pagination'
 import { SearchInput } from '../components/common/SearchInput'
 import { Select } from '../components/common/Select'
 import { ProductsTable } from '../components/modules/ProductsTable/ProductsTable'
+import { ProductsTableSkeleton } from '../components/modules/ProductsTable/ProductsTableSkeleton'
 import { useCategories } from '../hooks/useCategories'
 import { useProducts } from '../hooks/useProducts'
 import { useProductsFilters } from '../hooks/useProductsFilters'
@@ -38,11 +39,7 @@ export function ProductsPage() {
   } = useProductsFilters(data ?? [])
 
   if (isPending) {
-    return (
-      <p role="status" className="py-14 text-center text-content-muted">
-        Carregando produtos…
-      </p>
-    )
+    return <ProductsTableSkeleton />
   }
 
   if (isError) {
@@ -61,7 +58,7 @@ export function ProductsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <SearchInput
           value={search}
           onChange={setSearch}
@@ -84,9 +81,12 @@ export function ProductsPage() {
           />
         )}
 
-        <p aria-live="polite" className="ml-auto text-sm text-content-muted">
+        <p
+          aria-live="polite"
+          className="font-mono text-xs text-content-muted tabular-nums sm:ml-auto"
+        >
           {isFetching
-            ? 'Atualizando…'
+            ? 'atualizando…'
             : hasSearch
               ? `${matchedCount} de ${totalCount} produtos`
               : `${totalCount} produtos`}
@@ -99,7 +99,9 @@ export function ProductsPage() {
           description={
             hasSearch
               ? `Nada corresponde a “${search.trim()}”. Tente outro termo.`
-              : 'Esta categoria não tem produtos.'
+              : category
+                ? 'Esta categoria não tem produtos.'
+                : 'O catálogo está vazio no momento.'
           }
         />
       ) : (
