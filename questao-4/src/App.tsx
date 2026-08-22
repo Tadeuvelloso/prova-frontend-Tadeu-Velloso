@@ -1,5 +1,9 @@
+import { Button } from './components/common/Button'
 import { ThemeToggle } from './components/common/ThemeToggle'
+import { LoginPage } from './pages/LoginPage'
 import { AppProviders } from './providers/AppProviders'
+import { endSession } from './services/session'
+import { useAuthStore } from './store/authStore'
 import { formatCurrency, formatNumber } from './utils/formatters'
 import { notify } from './utils/notify'
 
@@ -32,9 +36,23 @@ const rows = [
 function App() {
   return (
     <AppProviders>
-      <TokensPreview />
+      <Gate />
     </AppProviders>
   )
+}
+
+/**
+ * TEMPORÁRIO — versão mínima do que o `ProtectedRoute` fará na etapa 8.
+ *
+ * Existe para que a autenticação seja demonstrável antes do roteamento entrar:
+ * sem token, tela de login; com token, a aplicação. Note que ninguém precisa
+ * mandar "redirecionar" — o interceptor apaga o token e este componente, que
+ * observa o store, reage sozinho.
+ */
+function Gate() {
+  const token = useAuthStore((state) => state.token)
+
+  return token ? <TokensPreview /> : <LoginPage />
 }
 
 function TokensPreview() {
@@ -51,8 +69,11 @@ function TokensPreview() {
             </h1>
           </div>
 
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
             <ThemeToggle />
+            <Button variant="secondary" onClick={() => endSession()}>
+              Sair
+            </Button>
           </div>
         </div>
       </header>
