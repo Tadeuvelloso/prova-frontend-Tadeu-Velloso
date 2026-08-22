@@ -4,6 +4,7 @@ import { headerCellClass } from './columns'
 interface SortableHeaderProps {
   field: SortField
   label: string
+  shortLabel?: string
   sort: SortState | null
   onSort: (field: SortField) => void
   align?: 'left' | 'right'
@@ -12,6 +13,7 @@ interface SortableHeaderProps {
 export function SortableHeader({
   field,
   label,
+  shortLabel,
   sort,
   onSort,
   align = 'left',
@@ -20,7 +22,7 @@ export function SortableHeader({
   const ariaSort = isActive ? (sort.order === 'asc' ? 'ascending' : 'descending') : 'none'
 
   return (
-    <th scope="col" aria-sort={ariaSort} className={headerCellClass(align)}>
+    <th scope="col" aria-sort={ariaSort} className={headerCellClass({ align })}>
       <button
         type="button"
         onClick={() => onSort(field)}
@@ -28,7 +30,14 @@ export function SortableHeader({
           isActive ? 'text-brand' : ''
         }`}
       >
-        {label}
+        {shortLabel ? (
+          <>
+            <span className="sm:hidden">{shortLabel}</span>
+            <span className="hidden sm:inline">{label}</span>
+          </>
+        ) : (
+          label
+        )}
         <span aria-hidden="true" className={isActive ? '' : 'opacity-25'}>
           {isActive && sort.order === 'desc' ? '↓' : '↑'}
         </span>
