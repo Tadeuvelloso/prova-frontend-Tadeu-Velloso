@@ -40,16 +40,22 @@ export function ProductsFilters({
     // `search` dá à região um papel próprio, para quem navega por landmarks
     // pular direto para os filtros.
     <search className="rounded-lg border border-border-subtle bg-surface p-4 shadow-card">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="sm:col-span-2 lg:col-span-1">
-          <Input
-            label="Nome do produto"
-            type="search"
-            value={name}
-            onChange={(event) => onNameChange(event.target.value)}
-            placeholder="Buscar por nome…"
-          />
-        </div>
+      {/*
+        Trilhas de largura fixa para preço e status, e o resto do espaço para
+        a busca. Com quatro colunas iguais os campos numéricos ficavam largos
+        demais para o que recebem — dois dígitos e uma vírgula — enquanto a
+        busca por nome, que é o filtro mais usado, ficava apertada.
+
+        Abaixo de `sm` a grade colapsa em uma coluna: os quatro empilham.
+      */}
+      <div className="grid gap-4 sm:grid-cols-[minmax(8rem,1fr)_6.5rem_6.5rem_8.5rem]">
+        <Input
+          label="Nome do produto"
+          type="search"
+          value={name}
+          onChange={(event) => onNameChange(event.target.value)}
+          placeholder="Buscar por nome…"
+        />
 
         <Input
           label="Preço mínimo"
