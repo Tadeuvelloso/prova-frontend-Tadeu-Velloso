@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '../config/queryKeys'
-import { createProduct, updateProduct } from '../services/productsService'
+import { createProduct, deleteProduct, updateProduct } from '../services/productsService'
 import type { CreateProductInput, Product, UpdateProductInput } from '../types/product'
 import type { AppError } from '../utils/errorHandler'
 import { notify } from '../utils/notify'
@@ -51,5 +51,23 @@ export function useProductMutations() {
     },
   })
 
-  return { create, update }
+  /**
+   * Recebe o produto inteiro, e não só o id, para nomeá-lo na confirmação —
+   * depois da exclusão ele não existe mais para ser consultado.
+   */
+  const remove = useMutation<void, AppError, Product>({
+    mutationFn: (product) => deleteProduct(product._id),
+    onSuccess: (_result, product) => {
+      void invalidateLists()
+      // Descarta o cache do item: mantê-lo faria a rota de edição exibir por
+      // um instante um produto que já não existe.
+      queryClient.removeQueries({ queryKey: queryKeys.product(product._id) })
+      notify.success(`Produto “${product.name}” excluído.`)
+    },
+    // Diferente do formulário, aqui não há campo onde pousar a mensagem: a
+    // exclusão acontece a partir da lista, então o aviso é geral.
+    onError: (error) => notify.error(error.message),
+  })
+
+  return { create, update, remove }
 }

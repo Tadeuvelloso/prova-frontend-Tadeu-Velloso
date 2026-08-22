@@ -6,11 +6,20 @@ import { StatusBadge } from './StatusBadge'
 
 interface ProductsTableProps {
   products: Product[]
-  /** Some a coluna inteira quando o papel não permite nenhuma ação. */
   canEdit: boolean
+  canDelete: boolean
+  onDelete: (product: Product) => void
 }
 
-export function ProductsTable({ products, canEdit }: ProductsTableProps) {
+export function ProductsTable({
+  products,
+  canEdit,
+  canDelete,
+  onDelete,
+}: ProductsTableProps) {
+  // A coluna inteira some quando o papel não permite ação nenhuma, em vez de
+  // ficar um espaço vazio à direita sem explicação.
+  const showActions = canEdit || canDelete
   return (
     // A rolagem fica no contêiner, não na página: em tela estreita a tabela
     // desliza dentro da própria caixa e o restante do layout não se mexe.
@@ -37,7 +46,7 @@ export function ProductsTable({ products, canEdit }: ProductsTableProps) {
               </th>
             ))}
 
-            {canEdit && (
+            {showActions && (
               <th scope="col" className="px-4 py-3 text-right">
                 <span className="sr-only">Ações</span>
               </th>
@@ -47,7 +56,13 @@ export function ProductsTable({ products, canEdit }: ProductsTableProps) {
 
         <tbody>
           {products.map((product) => (
-            <ProductRow key={product._id} product={product} canEdit={canEdit} />
+            <ProductRow
+              key={product._id}
+              product={product}
+              canEdit={canEdit}
+              canDelete={canDelete}
+              onDelete={onDelete}
+            />
           ))}
         </tbody>
       </table>
@@ -55,7 +70,17 @@ export function ProductsTable({ products, canEdit }: ProductsTableProps) {
   )
 }
 
-function ProductRow({ product, canEdit }: { product: Product; canEdit: boolean }) {
+function ProductRow({
+  product,
+  canEdit,
+  canDelete,
+  onDelete,
+}: {
+  product: Product
+  canEdit: boolean
+  canDelete: boolean
+  onDelete: (product: Product) => void
+}) {
   // O backend expõe `minStockAlert` justamente para isto. Mostrar o número
   // sem o alerta deixaria o dado que importa invisível numa lista longa.
   const isLowStock = product.stock <= product.minStockAlert
@@ -96,22 +121,39 @@ function ProductRow({ product, canEdit }: { product: Product; canEdit: boolean }
         <StatusBadge active={product.active} />
       </td>
 
-      {canEdit && (
-        <td className="px-4 py-3 text-right">
-          {/*
-            `Link`, e não botão com `navigate`: editar é ir para outro
-            endereço, então merece ser abrível em nova aba e ter o alvo
-            visível na barra de status.
-          */}
-          <Link
-            to={`/produtos/${product._id}/editar`}
-            className="rounded px-2 py-1 text-sm font-medium text-brand transition-colors hover:bg-brand-soft"
-          >
-            Editar
-            {/* Sem isto, um leitor de tela ouviria só "Editar" repetido em
-                todas as linhas, sem saber de qual produto. */}
-            <span className="sr-only"> {product.name}</span>
-          </Link>
+      {(canEdit || canDelete) && (
+        <td className="px-4 py-3">
+          <div className="flex justify-end gap-1">
+            {canEdit && (
+              /*
+                `Link`, e não botão com `navigate`: editar é ir para outro
+                endereço, então merece ser abrível em nova aba e ter o alvo
+                visível na barra de status.
+              */
+              <Link
+                to={`/produtos/${product._id}/editar`}
+                className="rounded px-2 py-1 text-sm font-medium text-brand transition-colors hover:bg-brand-soft"
+              >
+                Editar
+                {/* Sem isto, um leitor de tela ouviria só "Editar" repetido
+                    em todas as linhas, sem saber de qual produto. */}
+                <span className="sr-only"> {product.name}</span>
+              </Link>
+            )}
+
+            {canDelete && (
+              /* Botão, e não link: excluir não leva a lugar nenhum, executa
+                 uma ação na própria página. */
+              <button
+                type="button"
+                onClick={() => onDelete(product)}
+                className="rounded px-2 py-1 text-sm font-medium text-danger transition-colors hover:bg-danger-soft"
+              >
+                Excluir
+                <span className="sr-only"> {product.name}</span>
+              </button>
+            )}
+          </div>
         </td>
       )}
     </tr>

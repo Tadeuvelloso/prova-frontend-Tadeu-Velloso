@@ -6,11 +6,13 @@ import { ErrorState } from '../components/common/ErrorState'
 import { Pagination } from '../components/common/Pagination'
 import { ProductsFilters } from '../components/modules/ProductsFilters/ProductsFilters'
 import { ProductsTable } from '../components/modules/ProductsTable/ProductsTable'
+import { DeleteProductDialog } from '../components/modules/ProductsTable/DeleteProductDialog'
 import { ProductsTableSkeleton } from '../components/modules/ProductsTable/ProductsTableSkeleton'
+import { useProductMutations } from '../hooks/useProductMutations'
 import { useProducts } from '../hooks/useProducts'
 import { useProductsFilters } from '../hooks/useProductsFilters'
 import { useAuthStore } from '../store/authStore'
-import type { ProductStatusFilter } from '../types/product'
+import type { Product, ProductStatusFilter } from '../types/product'
 import { can } from '../utils/permissions'
 import { statusToFilters } from '../utils/productFilters'
 
@@ -33,6 +35,15 @@ export function ProductsPage() {
   const role = useAuthStore((state) => state.user?.role)
   const canCreate = can(role, 'create')
   const canEdit = can(role, 'update')
+  const canDelete = can(role, 'delete')
+
+  /**
+   * Guarda o produto inteiro, e não só o id: o diálogo precisa do nome e do
+   * SKU para nomear o que será excluído, e `null` representa "nenhum diálogo
+   * aberto" sem precisar de um segundo estado booleano.
+   */
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null)
+  const { remove } = useProductMutations()
 
   const isFiltering = filters.hasActiveFilters || status !== 'all'
 
@@ -107,7 +118,12 @@ export function ProductsPage() {
           <div
             className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}
           >
-            <ProductsTable products={filters.visibleProducts} canEdit={canEdit} />
+            <ProductsTable
+              products={filters.visibleProducts}
+              canEdit={canEdit}
+              canDelete={canDelete}
+              onDelete={setProductToDelete}
+            />
           </div>
 
           <Pagination
@@ -120,6 +136,22 @@ export function ProductsPage() {
           />
         </>
       )}
+
+      <DeleteProductDialog
+        product={productToDelete}
+        isDeleting={remove.isPending}
+        onCancel={() => setProductToDelete(null)}
+        onConfirm={() => {
+          if (!productToDelete) return
+
+          remove.mutate(productToDelete, {
+            // Fecha só depois de confirmado pelo servidor. Fechar no clique
+            // deixaria a linha sumir da tela antes de a exclusão existir de
+            // fato — e reaparecer caso ela falhasse.
+            onSuccess: () => setProductToDelete(null),
+          })
+        }}
+      />
     </div>
   )
 }
