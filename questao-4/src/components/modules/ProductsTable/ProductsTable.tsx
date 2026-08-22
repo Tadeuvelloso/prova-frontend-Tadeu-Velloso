@@ -21,9 +21,17 @@ export function ProductsTable({
   // ficar um espaço vazio à direita sem explicação.
   const showActions = canEdit || canDelete
   return (
-    // A rolagem fica no contêiner, não na página: em tela estreita a tabela
-    // desliza dentro da própria caixa e o restante do layout não se mexe.
-    <div className="overflow-x-auto rounded-lg border border-border-subtle bg-surface shadow-card">
+    /*
+      A rolagem fica no contêiner, não na página: em tela estreita a tabela
+      desliza dentro da própria caixa e o restante do layout não se mexe.
+
+      O `relative` não é decoração. Os textos `sr-only` desta tabela são
+      `position: absolute`, e elemento absoluto é recortado pelo bloco que o
+      contém — não pelo contêiner de rolagem, se este não estiver posicionado.
+      Sem o `relative`, esses textos escapavam do recorte e esticavam o
+      documento: entre 640px e 767px a página inteira rolava na horizontal.
+    */
+    <div className="relative overflow-x-auto rounded-lg border border-border-subtle bg-surface shadow-card">
       <table className="w-full min-w-[40rem] text-left text-sm">
         {/*
           Descreve a tabela para leitores de tela. Visualmente redundante —
