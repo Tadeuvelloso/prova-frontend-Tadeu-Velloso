@@ -13,15 +13,12 @@ import { useProductsFilters } from '../hooks/useProductsFilters'
 const ALL_CATEGORIES = ''
 
 export function ProductsPage() {
-  // A categoria fica acima do useProducts porque é o único filtro que vai ao
-  // servidor: mudar aqui muda a queryKey e, com ela, a requisição.
   const [category, setCategory] = useState(ALL_CATEGORIES)
 
   const { data, isPending, isError, error, refetch, isFetching } = useProducts(
     category || undefined,
   )
 
-  // Se as categorias falharem, o select some mas a tabela continua de pé.
   const { data: categories = [] } = useCategories()
 
   const {

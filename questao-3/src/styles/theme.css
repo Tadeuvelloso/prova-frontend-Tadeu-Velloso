@@ -1,11 +1,3 @@
-/**
- * Tokens de design, expostos como utilitários do Tailwind v4.
- *
- * A referência visual é a planilha de inventário: papel morno, fios finos e
- * números em fonte monoespaçada. IBM Plex foi desenhada para contexto técnico
- * e traz algarismos tabulares, que é o que mantém as colunas de preço e nota
- * alinhadas dígito a dígito.
- */
 @theme {
   --font-sans: 'IBM Plex Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;

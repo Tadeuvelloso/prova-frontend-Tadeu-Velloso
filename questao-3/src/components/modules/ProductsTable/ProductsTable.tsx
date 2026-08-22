@@ -11,9 +11,6 @@ interface ProductsTableProps {
 
 export function ProductsTable({ products, sort, onSort }: ProductsTableProps) {
   return (
-    // Sem largura mínima: as colunas secundárias somem no mobile em vez de
-    // empurrar preço e nota para fora da tela. O overflow fica como rede de
-    // segurança, preso ao container — a página nunca rola na horizontal.
     <div className="overflow-x-auto rounded-md border border-border-subtle bg-surface">
       <table className="w-full border-collapse text-left text-sm">
         <caption className="sr-only">

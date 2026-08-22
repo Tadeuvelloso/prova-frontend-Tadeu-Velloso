@@ -1,12 +1,5 @@
 import type { Product, SortField, SortState } from '../types/product'
 
-/**
- * Operações puras sobre a lista de produtos.
- *
- * Vivem fora do hook porque não dependem de React: podem ser lidas, testadas
- * e alteradas sem envolver ciclo de render.
- */
-
 function matchesSearch(product: Product, term: string): boolean {
   return (
     product.title.toLowerCase().includes(term) ||
@@ -33,13 +26,11 @@ export function sortProducts(products: Product[], sort: SortState | null): Produ
   const compare = comparators[sort.field]
   const direction = sort.order === 'asc' ? 1 : -1
 
-  // Cópia antes de ordenar: `Array.sort` muta, e o array vem do cache do
-  // React Query — ordenar no lugar corromperia os dados em cache.
+  // A cópia é obrigatória: `sort` muta e este array vem do cache do React Query.
   return [...products].sort((a, b) => compare(a, b) * direction)
 }
 
 export function getTotalPages(itemCount: number, pageSize: number): number {
-  // Nunca zero: uma lista vazia ainda é "página 1 de 1".
   return Math.max(1, Math.ceil(itemCount / pageSize))
 }
 
@@ -49,5 +40,6 @@ export function paginateProducts(
   pageSize: number,
 ): Product[] {
   const start = (page - 1) * pageSize
+
   return products.slice(start, start + pageSize)
 }

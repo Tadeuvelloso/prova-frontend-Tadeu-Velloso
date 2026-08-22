@@ -1,14 +1,6 @@
 import axios from 'axios'
 import type { ApiErrorInfo } from '../types/api'
 
-/**
- * Erro normalizado da aplicação.
- *
- * Estende `Error` (e não um objeto literal) para preservar stack trace e para
- * continuar funcionando com `instanceof`, `console.error` e com o React Query,
- * que trata a rejeição da query como um `Error`.
- */
-
 export class AppError extends Error implements ApiErrorInfo {
   status?: number
   isNetworkError: boolean
@@ -28,13 +20,8 @@ const NETWORK_MESSAGE =
 
 const TIMEOUT_MESSAGE = 'A requisição demorou mais que o esperado. Tente novamente.'
 
-/**
- * Traduz o status HTTP em uma mensagem para o usuário.
- *
- * As mensagens são propositalmente genéricas: detalhar demais o motivo da
- * recusa ajuda quem está sondando a API. O detalhe técnico fica em `status`,
- * disponível para log, não para exibição.
- */
+// Mensagens propositalmente genéricas: detalhar o motivo da recusa ajuda quem
+// estiver sondando a API. O detalhe técnico fica em `status`, para log.
 function messageForStatus(status: number): string {
   if (status === 400) return 'Requisição inválida.'
   if (status === 401) return 'Sessão expirada. Faça login novamente.'
@@ -45,16 +32,6 @@ function messageForStatus(status: number): string {
   return GENERIC_MESSAGE
 }
 
-/**
- * Converte qualquer falha em um `AppError`.
- *
- * Cobre os três cenários que o Axios distingue:
- * 1. `error.response` existe -> o servidor respondeu com status de erro;
- * 2. `error.request` existe  -> a requisição saiu mas não houve resposta
- *    (offline, DNS, CORS, timeout);
- * 3. nenhum dos dois         -> falha ao montar a requisição, ou um erro que
- *    nem veio do Axios.
- */
 export function toAppError(error: unknown): AppError {
   if (error instanceof AppError) {
     return error

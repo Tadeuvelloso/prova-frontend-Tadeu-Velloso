@@ -12,8 +12,6 @@ export function ProductsTableRow({ product }: ProductsTableRowProps) {
     <tr className="border-t border-border-subtle transition-colors hover:bg-surface-muted">
       <td className={cellClass(COLUMNS.title)}>
         <div className="flex items-center gap-3">
-          {/* A miniatura sai no mobile: o nome do produto vale mais que 40px
-              de imagem quando a largura é escassa. */}
           <img
             src={product.image}
             alt=""

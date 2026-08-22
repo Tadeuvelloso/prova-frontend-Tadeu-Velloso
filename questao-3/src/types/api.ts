@@ -1,4 +1,3 @@
-
 export interface ApiErrorInfo {
   message: string
   status?: number

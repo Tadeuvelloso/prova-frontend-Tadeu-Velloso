@@ -7,10 +7,6 @@ function Bar({ className }: { className: string }) {
   return <span className={`block h-3 animate-pulse rounded-sm bg-border-subtle ${className}`} />
 }
 
-/**
- * Ocupa exatamente a grade da tabela real, com o mesmo número de linhas de
- * uma página: quando os dados chegam, nada salta de lugar.
- */
 export function ProductsTableSkeleton() {
   return (
     <div

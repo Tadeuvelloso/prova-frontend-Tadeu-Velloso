@@ -7,14 +7,6 @@ interface RatingMeterProps {
   rating: ProductRating
 }
 
-/**
- * Nota como medidor, e não só como número: percorrendo a coluna dá para ler
- * a distribuição de qualidade do catálogo de relance. A barra é decorativa
- * para leitores de tela — o valor já está no texto ao lado.
- *
- * Abaixo de 768px a contagem de votos sai: é o dado menos importante dos três
- * e o espaço vale mais para o nome do produto.
- */
 export function RatingMeter({ rating }: RatingMeterProps) {
   const percentage = (rating.rate / MAX_RATE) * 100
 

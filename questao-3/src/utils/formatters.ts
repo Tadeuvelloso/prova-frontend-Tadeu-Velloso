@@ -1,8 +1,5 @@
-/**
- * Os preços da Fake Store API são em dólar. Formatar no locale pt-BR com a
- * moeda USD produz "US$ 109,95": separador decimal brasileiro, sem esconder
- * que o valor não é em real.
- */
+// Locale pt-BR com moeda USD produz "US$ 109,95": separador brasileiro, sem
+// esconder que os preços da Fake Store não são em real.
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'USD',

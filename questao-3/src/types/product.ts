@@ -13,11 +13,6 @@ export interface Product {
   rating: ProductRating
 }
 
-/**
- * As categorias não são fixas no código: vêm de `/products/categories`.
- * O alias existe para deixar as assinaturas legíveis sem fingir que o
- * conjunto de valores é conhecido em tempo de compilação.
- */
 export type Category = string
 
 export type SortField = 'title' | 'price' | 'rating'
