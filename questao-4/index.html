@@ -5,6 +5,45 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestão de Produtos</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      /*
+        Aplica o tema antes da primeira pintura. Sem isto o bundle só roda
+        depois do HTML ser processado, e quem usa tema escuro veria um flash
+        branco a cada recarregamento.
+
+        Lê a mesma chave que o `persist` do Zustand grava em
+        `src/store/themeStore.ts` — o formato `{ state: { theme } }` é o do
+        próprio middleware.
+      */
+      ;(function () {
+        var root = document.documentElement
+
+        try {
+          var saved = JSON.parse(localStorage.getItem('questao-4-theme') || 'null')
+          var theme = saved && saved.state && saved.state.theme
+
+          if (theme !== 'light' && theme !== 'dark') {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+          }
+
+          root.dataset.theme = theme
+        } catch (error) {
+          // localStorage bloqueado (aba anônima, cookies desabilitados):
+          // o app continua funcionando, apenas sem lembrar a preferência.
+          root.dataset.theme = 'light'
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,100 @@
+/**
+ * Tokens de design, expostos como utilitários do Tailwind v4.
+ *
+ * A referência é um painel operacional de distribuidora: neutros frios,
+ * superfícies chapadas e um acento âmbar que remete a malte — o mesmo papel
+ * que o verde-petróleo cumpria na Questão 3, com outro repertório.
+ *
+ * Space Grotesk carrega os títulos, Inter o texto corrido, e JetBrains Mono
+ * os números: preço, estoque e paginação precisam de algarismos tabulares
+ * para as colunas alinharem dígito a dígito.
+ *
+ * O tema escuro NÃO é uma segunda folha de estilo. Ele redefine as mesmas
+ * variáveis sob `:root[data-theme='dark']`, então todo componente que usar
+ * `bg-surface` ou `text-content` troca de tema sozinho, sem variante e sem
+ * `dark:` espalhado pelo JSX.
+ */
+@theme {
+  --font-sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  /* Superfícies: `muted` é o fundo da página, `surface` é o que se apoia nele. */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f6f8;
+
+  --color-border-subtle: #e2e5ea;
+  --color-border-strong: #cbd1da;
+
+  --color-content: #12151b;
+  --color-content-muted: #626b7a;
+
+  /* `contrast` é a cor do texto POR CIMA do acento — muda junto com o tema. */
+  --color-brand: #b45309;
+  --color-brand-hover: #92400e;
+  --color-brand-soft: #fdf3e6;
+  --color-brand-contrast: #ffffff;
+
+  --color-danger: #b42318;
+  --color-danger-soft: #fef3f2;
+
+  --color-success: #067647;
+  --color-success-soft: #ecfdf3;
+}
+
+/**
+ * A sombra fica FORA do `@theme` de propósito.
+ *
+ * Um `--shadow-*` declarado ali é resolvido em tempo de build: o Tailwind
+ * inlineia o valor dentro da classe e a indireção se perde, então redefinir a
+ * variável no tema escuro não teria efeito nenhum. Declarando a variável em
+ * `:root` e criando a utility com `@utility`, o `var()` sobrevive até o
+ * navegador — que é o que permite ao tema trocar a sombra.
+ */
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+/* Faz o navegador acompanhar o tema em scrollbar, campos nativos e autofill. */
+:root {
+  color-scheme: light;
+
+  /* No claro a elevação vem da sombra; no escuro, da borda (ver abaixo). */
+  --shadow-card: 0 1px 2px rgb(16 21 27 / 0.06), 0 1px 3px rgb(16 21 27 / 0.04);
+}
+
+/**
+ * `:root[data-theme='dark']` em vez de só `[data-theme='dark']`: o `@theme`
+ * emite as variáveis em `:root`, e um seletor de mesma especificidade
+ * dependeria da ordem dos arquivos para vencer. Com o `:root` na frente, a
+ * especificidade é maior e o override é garantido.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-surface: #16181d;
+  --color-surface-muted: #0e1013;
+
+  --color-border-subtle: #262a32;
+  --color-border-strong: #363b45;
+
+  --color-content: #e9ecf1;
+  --color-content-muted: #98a1b0;
+
+  /* Âmbar mais claro: o tom 700 do tema claro não alcança contraste sobre
+     fundo escuro. E o texto sobre ele passa a ser escuro, não branco. */
+  --color-brand: #f59e0b;
+  --color-brand-hover: #fbbf24;
+  --color-brand-soft: #2a1f0d;
+  --color-brand-contrast: #16181d;
+
+  --color-danger: #f97066;
+  --color-danger-soft: #2d1513;
+
+  --color-success: #47cd89;
+  --color-success-soft: #0d2a1c;
+
+  /* Sombra escura sobre fundo escuro não comunica elevação: quem separa o
+     card do fundo aqui é a borda. */
+  --shadow-card: none;
+}
