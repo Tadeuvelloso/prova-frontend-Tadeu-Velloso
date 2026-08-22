@@ -1,4 +1,5 @@
 import { ThemeToggle } from './components/common/ThemeToggle'
+import { formatCurrency, formatNumber } from './utils/formatters'
 
 /**
  * TEMPORÁRIO — amostra dos tokens de tema.
@@ -138,13 +139,10 @@ function App() {
                       <td className="py-3 text-content">{row.name}</td>
                       <td className="py-3 font-mono text-xs text-content-muted">{row.sku}</td>
                       <td className="py-3 text-right font-mono text-content tabular-nums">
-                        {row.price.toLocaleString('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        })}
+                        {formatCurrency(row.price)}
                       </td>
                       <td className="py-3 text-right font-mono text-content-muted tabular-nums">
-                        {row.stock}
+                        {formatNumber(row.stock)}
                       </td>
                       <td className="py-3">
                         <span
