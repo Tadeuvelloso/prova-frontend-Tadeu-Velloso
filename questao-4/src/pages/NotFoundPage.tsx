@@ -17,10 +17,6 @@ export function NotFoundPage() {
           O endereço acessado não existe nesta aplicação.
         </p>
 
-        {/*
-          `Link`, e não `<a href>`: âncora comum recarregaria a aplicação
-          inteira e descartaria o estado em memória.
-        */}
         <Link
           to={DEFAULT_AUTHENTICATED_ROUTE}
           className="mt-6 inline-block rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-contrast transition-colors hover:bg-brand-hover"

@@ -41,11 +41,6 @@ export function Pagination({
           className="w-auto"
         />
 
-        {/*
-          Intervalo em vez de só o número da página: "6–10 de 23" responde
-          onde a pessoa está na lista, que é a pergunta real. "Página 2"
-          sozinho não diz quanto falta.
-        */}
         <p aria-live="polite" className="font-mono text-xs text-content-muted tabular-nums">
           {first}–{last} de {totalItems}
         </p>

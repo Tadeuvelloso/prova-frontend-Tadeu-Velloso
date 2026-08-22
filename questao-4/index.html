@@ -14,15 +14,8 @@
     />
 
     <script>
-      /*
-        Aplica o tema antes da primeira pintura. Sem isto o bundle só roda
-        depois do HTML ser processado, e quem usa tema escuro veria um flash
-        branco a cada recarregamento.
-
-        Lê a mesma chave que o `persist` do Zustand grava em
-        `src/store/themeStore.ts` — o formato `{ state: { theme } }` é o do
-        próprio middleware.
-      */
+      // Aplica o tema antes da primeira pintura, evitando flash branco ao
+      // recarregar no escuro. Lê a chave gravada em src/store/themeStore.ts.
       ;(function () {
         var root = document.documentElement
 
@@ -38,8 +31,6 @@
 
           root.dataset.theme = theme
         } catch (error) {
-          // localStorage bloqueado (aba anônima, cookies desabilitados):
-          // o app continua funcionando, apenas sem lembrar a preferência.
           root.dataset.theme = 'light'
         }
       })()

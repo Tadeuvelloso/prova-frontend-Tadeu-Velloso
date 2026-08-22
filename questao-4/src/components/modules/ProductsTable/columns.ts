@@ -1,16 +1,7 @@
-/**
- * Definição das colunas em um lugar só.
- *
- * A tabela e o esqueleto de carregamento leem daqui. Sem isso, acrescentar
- * uma coluna exigiria lembrar de mexer nos dois — e o esqueleto passaria a
- * desenhar uma grade diferente da real, provocando salto de layout quando os
- * dados chegam.
- */
 export interface ProductColumn {
   key: string
   label: string
   align: 'left' | 'right'
-  /** Largura relativa usada só pelo esqueleto, para imitar o conteúdo real. */
   skeletonWidth: string
 }
 

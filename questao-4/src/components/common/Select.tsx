@@ -8,7 +8,6 @@ export interface SelectOption {
 interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
   label: string
   options: readonly SelectOption[]
-  /** Esconde o rótulo visualmente, mantendo-o para leitores de tela. */
   hideLabel?: boolean
 }
 

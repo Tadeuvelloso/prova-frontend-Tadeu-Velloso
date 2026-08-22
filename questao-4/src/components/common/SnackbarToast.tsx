@@ -1,18 +1,6 @@
 import { forwardRef } from 'react'
 import { closeSnackbar, type CustomContentProps } from 'notistack'
 
-/**
- * Conteúdo customizado dos snackbars do notistack.
- *
- * O notistack cuida da fila, do empilhamento, do tempo em tela, do portal e
- * das transições. O que ele NÃO deve decidir é a aparência: o visual padrão
- * dele é Material Design e destoaria dos tokens do projeto. Registrando este
- * componente no `Components` do `SnackbarProvider`, a biblioteca continua
- * orquestrando e o desenho volta para o nosso design system.
- *
- * Precisa de `forwardRef`: o notistack encaminha uma ref para animar a entrada
- * e a saída do elemento.
- */
 export const SnackbarToast = forwardRef<HTMLDivElement, CustomContentProps>(
   function SnackbarToast({ id, message, variant }, ref) {
     const tone = variant === 'error' ? 'error' : variant === 'success' ? 'success' : 'info'
@@ -20,8 +8,6 @@ export const SnackbarToast = forwardRef<HTMLDivElement, CustomContentProps>(
     return (
       <div
         ref={ref}
-        // `alert` interrompe o leitor de tela, `status` espera a próxima pausa.
-        // A diferença importa: falha exige reação, confirmação não.
         role={tone === 'error' ? 'alert' : 'status'}
         className="pointer-events-auto flex w-full items-start gap-3 rounded-lg border border-border-subtle bg-surface p-3 shadow-card sm:w-80"
       >

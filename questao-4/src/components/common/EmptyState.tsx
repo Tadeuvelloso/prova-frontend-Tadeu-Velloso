@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 interface EmptyStateProps {
   title: string
   description: string
-  /** Ação sugerida — cadastrar o primeiro produto, limpar os filtros. */
   action?: ReactNode
 }
 

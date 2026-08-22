@@ -8,7 +8,6 @@ import { applyServerFieldErrors } from '../../../utils/formErrors'
 import { notify } from '../../../utils/notify'
 import { productSchema, type ProductFormValues } from '../../../utils/validators'
 
-/** Campos que o formulário conhece — usado para filtrar erros vindos da API. */
 const FORM_FIELDS = ['name', 'sku', 'category', 'purchasePrice', 'salePrice', 'active']
 
 export type ProductFormMode = 'create' | 'edit'
@@ -17,7 +16,6 @@ interface ProductFormProps {
   mode: ProductFormMode
   defaultValues: ProductFormValues
   isSubmitting: boolean
-  /** Deve rejeitar com `AppError` para o formulário marcar os campos. */
   onSubmit: (values: ProductFormValues) => Promise<void>
   onCancel: () => void
 }
@@ -37,28 +35,17 @@ export function ProductForm({
   } = useForm<ProductFormValues>({
     resolver: yupResolver(productSchema),
     defaultValues,
-    // Valida ao sair do campo, não a cada tecla: acusar erro no meio da
-    // digitação é ruído.
     mode: 'onBlur',
   })
 
   const isEditing = mode === 'edit'
 
-  /**
-   * Toda falha de submissão é tratada AQUI, e não em quem passou o
-   * `onSubmit`. É o formulário que tem o `setError` e sabe quais campos
-   * existem — um try/catch na página engoliria o erro antes de ele chegar
-   * neste ponto, e a recusa do servidor viraria só um toast genérico.
-   */
   async function submit(values: ProductFormValues) {
     try {
       await onSubmit(values)
     } catch (error) {
       const appError = error as AppError
 
-      // O que não couber num campo vira aviso geral: falha de rede, 403 ou
-      // 5xx não pertencem a nenhum campo, e sem isto a submissão fracassaria
-      // em silêncio — o botão sairia do carregando sem explicação.
       if (!applyProductServerError(appError, setError)) {
         notify.error(appError.message)
       }
@@ -68,8 +55,6 @@ export function ProductForm({
   return (
     <form
       onSubmit={handleSubmit(submit)}
-      // Desliga a validação nativa: as mensagens do navegador não seguem o
-      // idioma da aplicação nem o estilo dos campos.
       noValidate
       className="space-y-6 rounded-lg border border-border-subtle bg-surface p-6 shadow-card"
     >
@@ -88,9 +73,8 @@ export function ProductForm({
           label="SKU"
           autoComplete="off"
           placeholder="COCA-2L"
-          // `readOnly` em vez de `disabled`: campo desabilitado sai do estado
-          // do formulário e some da navegação por teclado. Somente-leitura
-          // mantém o valor visível, focável e copiável.
+          // `readOnly` e não `disabled`: campo desabilitado sai do estado do
+          // formulário e da navegação por teclado.
           readOnly={isEditing}
           hint={
             isEditing
@@ -118,8 +102,6 @@ export function ProductForm({
           step="0.01"
           placeholder="0,00"
           error={errors.purchasePrice?.message}
-          // `valueAsNumber` entrega número ao Yup em vez de string — sem isso
-          // a validação de mínimo compararia texto.
           {...register('purchasePrice', { valueAsNumber: true })}
         />
 
@@ -154,21 +136,12 @@ export function ProductForm({
   )
 }
 
-/**
- * Traz a recusa do servidor para o campo certo. Devolve `false` quando o erro
- * não pertence a nenhum campo.
- *
- * Dois caminhos, porque o backend responde de duas formas diferentes:
- *
- * - **409** é conflito de unicidade. Como o formulário não envia código de
- *   barras, o único campo único em jogo é o SKU — e a mensagem que o backend
- *   manda ("SKU já cadastrado") já é a frase certa para exibir ali.
- * - **400** traz `details` com `path` e `message` por campo, vindos do Zod.
- */
 function applyProductServerError(
   error: AppError,
   setError: ReturnType<typeof useForm<ProductFormValues>>['setError'],
 ): boolean {
+  // 409 é conflito de unicidade e o formulário não envia código de barras,
+  // então o único campo único em jogo é o SKU.
   if (error.status === 409) {
     setError('sku', { type: 'server', message: error.message })
     return true

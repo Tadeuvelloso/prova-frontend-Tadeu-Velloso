@@ -11,20 +11,11 @@ const EMPTY_PRODUCT: ProductFormValues = {
   name: '',
   sku: '',
   category: '',
-  // `NaN` e não `0`: o campo precisa nascer vazio, e zero é um preço válido
-  // que ficaria pré-preenchido sem ninguém ter digitado.
   purchasePrice: Number.NaN,
   salePrice: Number.NaN,
   active: true,
 }
 
-/**
- * Serve o cadastro e a edição.
- *
- * São a mesma tela porque são o mesmo formulário: mudam a origem dos valores
- * iniciais, o endpoint e o rótulo do botão. Duplicar a página para variar
- * essas três coisas criaria dois lugares para corrigir a cada campo novo.
- */
 export function ProductFormPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -39,8 +30,6 @@ export function ProductFormPage() {
 
   async function handleSubmit(values: ProductFormValues) {
     if (isEditing && id) {
-      // O `sku` não vai no payload: o `UpdateProductInput` o exclui, porque o
-      // schema do backend não aceita alterá-lo.
       await update.mutateAsync({
         id,
         input: {
@@ -83,8 +72,6 @@ export function ProductFormPage() {
         mode={isEditing ? 'edit' : 'create'}
         defaultValues={product ? toFormValues(product) : EMPTY_PRODUCT}
         isSubmitting={create.isPending || update.isPending}
-        // Sem try/catch aqui de propósito: a falha precisa chegar ao
-        // `ProductForm`, que é quem tem o `setError` para marcar o campo.
         onSubmit={handleSubmit}
         onCancel={goBackToList}
       />

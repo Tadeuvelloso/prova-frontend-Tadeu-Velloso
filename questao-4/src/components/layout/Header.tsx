@@ -21,8 +21,6 @@ export function Header() {
 
         <div className="ml-auto flex items-center gap-3">
           {user && (
-            // Somem no mobile: em tela estreita o nome empurraria os controles
-            // para uma segunda linha, e quem está logado já sabe quem é.
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium text-content">{user.fullName}</p>
               <p className="text-xs text-content-muted">{ROLE_LABEL[user.role]}</p>
@@ -31,11 +29,6 @@ export function Header() {
 
           <ThemeToggle />
 
-          {/*
-            Chama o mesmo `endSession` do interceptor: sair pelo botão e ser
-            desconectado por token vencido precisam deixar a aplicação no
-            mesmo estado, cache do React Query incluído.
-          */}
           <Button variant="secondary" onClick={() => endSession()}>
             Sair
           </Button>

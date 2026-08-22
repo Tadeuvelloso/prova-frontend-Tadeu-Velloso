@@ -1,18 +1,9 @@
 import axios from 'axios'
 import type { ApiErrorPayload, ApiValidationDetail } from '../types/api'
 
-/**
- * Erro normalizado da aplicação.
- *
- * Estende `Error` (e não um objeto literal) para preservar stack trace e para
- * continuar funcionando com `instanceof`, `console.error` e com o React Query,
- * que trata a rejeição da query como um `Error`.
- */
 export class AppError extends Error {
   status?: number
-  /** Módulo do backend que originou a falha — para log, não para exibição. */
   context?: string
-  /** Payload extra do backend. Formato varia por tipo de erro (ver ApiErrorPayload). */
   details?: unknown
   isNetworkError: boolean
 
@@ -44,10 +35,6 @@ const TIMEOUT_MESSAGE =
 
 const SERVER_MESSAGE = 'O servidor apresentou uma falha. Tente novamente em instantes.'
 
-/**
- * Mensagem por faixa de status, usada quando a resposta não traz o envelope
- * de erro do backend (um 502 do proxy do Render, por exemplo, devolve HTML).
- */
 function messageForStatus(status: number): string {
   if (status === 400) return 'Dados inválidos. Revise os campos e tente novamente.'
   if (status === 401) return 'Sessão expirada. Faça login novamente.'
@@ -67,16 +54,6 @@ function toErrorPayload(data: unknown): ApiErrorPayload | null {
   return typeof payload.message === 'string' ? (payload as ApiErrorPayload) : null
 }
 
-/**
- * Converte qualquer falha em um `AppError`.
- *
- * Cobre os três cenários que o Axios distingue:
- * 1. `error.response` existe -> o servidor respondeu com status de erro;
- * 2. `error.request` existe  -> a requisição saiu mas não houve resposta
- *    (offline, DNS, CORS, timeout);
- * 3. nenhum dos dois         -> falha ao montar a requisição, ou um erro que
- *    nem veio do Axios.
- */
 export function toAppError(error: unknown): AppError {
   if (error instanceof AppError) {
     return error
@@ -87,14 +64,9 @@ export function toAppError(error: unknown): AppError {
       const { status, data } = error.response
       const payload = toErrorPayload(data)
 
-      /**
-       * Abaixo de 500 a mensagem do backend é melhor do que qualquer tradução
-       * por status: ela já vem em português e é específica onde importa
-       * ("SKU já cadastrado", "Credenciais inválidas", "Produto não
-       * encontrado"). De 500 para cima ela deixa de servir — vira "Internal
-       * server error", que não orienta o usuário e ainda expõe detalhe
-       * interno para quem estiver sondando a API.
-       */
+      // Abaixo de 500 a mensagem do backend já vem em português e específica.
+      // De 500 para cima vira "Internal server error", que não orienta o
+      // usuário e expõe detalhe interno.
       const message = status < 500 && payload ? payload.message : messageForStatus(status)
 
       return new AppError(message, {
@@ -116,15 +88,6 @@ export function toAppError(error: unknown): AppError {
   return new AppError(GENERIC_MESSAGE)
 }
 
-/**
- * Extrai os erros de campo que o backend devolve num 400.
- *
- * O `details` do `ApiErrorPayload` é `unknown` porque muda de formato por tipo
- * de erro: o middleware de validação manda um array `{ path, message }` vindo
- * do Zod, o de autorização manda `{ requiredRoles, userRole }`. Esta função é
- * a fronteira onde esse `unknown` vira algo utilizável — validando item a
- * item, em vez de confiar num cast.
- */
 export function getValidationDetails(error: AppError): ApiValidationDetail[] | null {
   if (!Array.isArray(error.details)) return null
 

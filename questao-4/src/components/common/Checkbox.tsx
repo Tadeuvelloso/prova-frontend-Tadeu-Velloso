@@ -5,10 +5,6 @@ interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string
 }
 
-/**
- * `forwardRef` pelo mesmo motivo do `Input`: é assim que o `register` do
- * react-hook-form se liga ao campo.
- */
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
   { label, hint, id, ...props },
   ref,

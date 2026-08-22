@@ -17,11 +17,6 @@ import { can } from '../utils/permissions'
 import { statusToFilters } from '../utils/productFilters'
 
 export function ProductsPage() {
-  /**
-   * O status mora aqui, e não no `useProductsFilters`, porque é o único
-   * filtro que vai ao servidor: mudá-lo muda a chave da query e, com ela, a
-   * requisição. Nome e faixa de preço trabalham sobre a lista já carregada.
-   */
   const [status, setStatus] = useState<ProductStatusFilter>('all')
 
   const serverFilters = useMemo(() => statusToFilters(status), [status])
@@ -30,18 +25,11 @@ export function ProductsPage() {
   const products = useMemo(() => data ?? [], [data])
   const filters = useProductsFilters(products)
 
-  // A regra de quem pode o quê mora em `utils/permissions`, espelhando o
-  // `authorize` do backend — a tela só consulta.
   const role = useAuthStore((state) => state.user?.role)
   const canCreate = can(role, 'create')
   const canEdit = can(role, 'update')
   const canDelete = can(role, 'delete')
 
-  /**
-   * Guarda o produto inteiro, e não só o id: o diálogo precisa do nome e do
-   * SKU para nomear o que será excluído, e `null` representa "nenhum diálogo
-   * aberto" sem precisar de um segundo estado booleano.
-   */
   const [productToDelete, setProductToDelete] = useState<Product | null>(null)
   const { remove } = useProductMutations()
 
@@ -55,8 +43,6 @@ export function ProductsPage() {
         </h2>
 
         {!isPending && !isError && (
-          // `aria-live` porque este número muda sem recarregar a página:
-          // quem usa leitor de tela precisa ouvir o resultado do filtro.
           <p aria-live="polite" className="font-mono text-xs text-content-muted tabular-nums">
             {formatCount(filters.matchedProducts.length, products.length, isFiltering)}
           </p>
@@ -82,8 +68,6 @@ export function ProductsPage() {
         status={status}
         onStatusChange={(value) => {
           setStatus(value)
-          // Mesmo motivo dos demais filtros: a lista muda de tamanho, e a
-          // página em que a pessoa estava pode não existir na nova lista.
           filters.resetPage()
         }}
         hasInvertedRange={filters.hasInvertedRange}
@@ -112,9 +96,6 @@ export function ProductsPage() {
         />
       ) : (
         <>
-          {/* Esmaece durante o refetch do filtro de status, sinalizando que o
-              conteúdo está sendo substituído sem trocar tudo pelo esqueleto —
-              é o par visual do `keepPreviousData`. */}
           <div
             className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}
           >
@@ -145,9 +126,6 @@ export function ProductsPage() {
           if (!productToDelete) return
 
           remove.mutate(productToDelete, {
-            // Fecha só depois de confirmado pelo servidor. Fechar no clique
-            // deixaria a linha sumir da tela antes de a exclusão existir de
-            // fato — e reaparecer caso ela falhasse.
             onSuccess: () => setProductToDelete(null),
           })
         }}
@@ -156,13 +134,6 @@ export function ProductsPage() {
   )
 }
 
-/**
- * Distingue catálogo vazio de filtro sem resultado.
- *
- * São situações diferentes e pedem saídas diferentes: no primeiro caso não há
- * o que fazer além de cadastrar; no segundo, a lista existe e o caminho é
- * afrouxar o filtro — por isso o botão só aparece ali.
- */
 function EmptyResult({
   isFiltering,
   onClear,

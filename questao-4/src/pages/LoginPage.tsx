@@ -7,11 +7,6 @@ import { ThemeToggle } from '../components/common/ThemeToggle'
 import { useLogin } from '../hooks/useLogin'
 import { loginSchema, type LoginFormValues } from '../utils/validators'
 
-/**
- * Depois disto, a demora deixa de parecer travamento e vira espera com
- * explicação. O valor sai do comportamento do Render: quente, a API responde
- * em menos de um segundo; hibernada, pode levar quase um minuto.
- */
 const COLD_START_HINT_DELAY = 5000
 
 export function LoginPage() {
@@ -23,8 +18,6 @@ export function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: yupResolver(loginSchema),
-    // Valida ao sair do campo, não a cada tecla: acusar "e-mail inválido" no
-    // terceiro caractere digitado é ruído, não ajuda.
     mode: 'onBlur',
   })
 
@@ -52,8 +45,6 @@ export function LoginPage() {
 
           <form
             onSubmit={handleSubmit((values) => mutate(values))}
-            // Desliga a validação nativa do navegador: as mensagens dela não
-            // seguem o idioma da aplicação nem o estilo dos campos.
             noValidate
             className="space-y-4 rounded-lg border border-border-subtle bg-surface p-6 shadow-card"
           >
@@ -74,8 +65,6 @@ export function LoginPage() {
               {...register('password')}
             />
 
-            {/* O erro do servidor fica junto do formulário, e não num toast no
-                canto: é aqui que o usuário está olhando quando ele acontece. */}
             {error && (
               <p
                 role="alert"
@@ -97,8 +86,6 @@ export function LoginPage() {
             )}
           </form>
 
-          {/* Ambiente de avaliação: as credenciais do seed são públicas e
-              estão no README do backend. Num sistema real isto não existiria. */}
           <p className="mt-4 text-center text-xs text-content-muted">
             Acesso de demonstração:{' '}
             <span className="font-mono text-content">admin@bebidaspro.com</span> ·{' '}
@@ -110,7 +97,6 @@ export function LoginPage() {
   )
 }
 
-/** Vira `true` quando a requisição passa do tempo em que a espera é normal. */
 function useSlowRequestHint(isPending: boolean): boolean {
   const [isSlow, setIsSlow] = useState(false)
 
@@ -119,10 +105,6 @@ function useSlowRequestHint(isPending: boolean): boolean {
 
     const timer = setTimeout(() => setIsSlow(true), COLD_START_HINT_DELAY)
 
-    // O reset vive na limpeza, e não no corpo do efeito: quando a requisição
-    // termina, o efeito é desfeito e o aviso volta ao estado inicial. Assim
-    // uma segunda tentativa não começa já mostrando a dica, e nenhum
-    // `setState` roda de forma síncrona durante o efeito.
     return () => {
       clearTimeout(timer)
       setIsSlow(false)

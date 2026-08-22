@@ -10,18 +10,6 @@ interface ProductsCardsProps {
   onDelete: (product: Product) => void
 }
 
-/**
- * A mesma lista em formato de cartão, para telas estreitas.
- *
- * Na Questão 3 a tabela apenas rolava na horizontal, e ali isso bastava — as
- * linhas eram só leitura. Aqui cada linha tem ações, e rolagem lateral
- * esconderia justamente os botões: a pessoa veria os dados e teria que
- * descobrir sozinha que precisa arrastar para agir. O cartão põe dado e ação
- * no mesmo campo de visão.
- *
- * `<ul>` e não `<div>`: continua sendo uma lista, e quem usa leitor de tela
- * ouve quantos itens existem antes de percorrê-los.
- */
 export function ProductsCards({
   products,
   canEdit,
@@ -47,8 +35,6 @@ export function ProductsCards({
               <StatusBadge active={product.active} />
             </div>
 
-            {/* `dl` porque cada item é um par rótulo/valor — e o rótulo
-                precisa existir aqui, já que não há cabeçalho de coluna. */}
             <dl className="mt-3 grid grid-cols-3 gap-2 text-sm">
               <div>
                 <dt className="text-xs text-content-muted">Categoria</dt>

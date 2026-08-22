@@ -4,21 +4,8 @@ interface ProductsTableSkeletonProps {
   rows?: number
 }
 
-/**
- * Reproduz a grade exata da lista enquanto os dados carregam.
- *
- * A escolha por esqueleto, e não por um "Carregando…" centralizado, é para
- * não haver salto de layout: a caixa já ocupa o espaço final, e quando os
- * dados chegam o conteúdo aparece no lugar onde a pessoa já estava olhando.
- *
- * Segue a mesma quebra da lista real — tabela em tela larga, cartões em tela
- * estreita. Um esqueleto em grade sob uma lista de cartões produziria
- * exatamente o salto que ele existe para evitar.
- */
 export function ProductsTableSkeleton({ rows = 5 }: ProductsTableSkeletonProps) {
   return (
-    // O anúncio fica no contêiner, e não numa das variantes: assim ele vale
-    // para as duas larguras, já que só uma delas está visível por vez.
     <div role="status" aria-label="Carregando produtos">
       <div className="animate-pulse space-y-3 sm:hidden">
         {Array.from({ length: rows }, (_, index) => (
@@ -41,8 +28,6 @@ export function ProductsTableSkeleton({ rows = 5 }: ProductsTableSkeletonProps) 
         <table className="w-full min-w-[40rem] text-left text-sm">
           <thead>
             <tr className="border-b border-border-subtle">
-              {/* As colunas vêm do mesmo `PRODUCT_COLUMNS` da tabela real,
-                  então as duas grades não podem divergir. */}
               {PRODUCT_COLUMNS.map((column) => (
                 <th
                   key={column.key}

@@ -1,12 +1,5 @@
 import { useThemeStore } from '../../store/themeStore'
 
-/**
- * Botão único que alterna entre claro e escuro.
- *
- * O rótulo acessível descreve a AÇÃO ("Ativar tema escuro"), não o estado
- * atual — é o que o leitor de tela precisa saber antes de acionar. O ícone
- * mostrado é o do tema de destino, pela mesma razão.
- */
 export function ThemeToggle() {
   const theme = useThemeStore((state) => state.theme)
   const toggleTheme = useThemeStore((state) => state.toggleTheme)

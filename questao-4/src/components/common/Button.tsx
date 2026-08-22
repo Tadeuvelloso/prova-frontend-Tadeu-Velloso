@@ -27,11 +27,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      // Um botão dentro de <form> sem `type` submete por padrão. Exigir a
-      // escolha explícita evita o clássico "cancelar que salva o formulário".
       type="button"
-      // Carregando também bloqueia: sem isso, um duplo clique dispara duas
-      // requisições de criação.
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASS[variant]} ${className}`}

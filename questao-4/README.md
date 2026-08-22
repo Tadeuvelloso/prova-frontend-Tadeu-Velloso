@@ -111,6 +111,8 @@ O login devolve `{ user, accessToken }`. O token é gravado pelo middleware `per
 
 **Feedback ancorado no topo.** Não é estética: com o snackbar embaixo à direita, ele cobria a linha de ações dos formulários, que também é embaixo à direita. Medido com `elementFromPoint` no centro do botão "Cadastrar produto" — quem respondia era o parágrafo do toast, e o clique não chegava ao botão.
 
+**O contêiner da tabela é `relative`.** Os utilitários `sr-only` do Tailwind são `position: absolute`, e elemento absoluto é recortado pelo bloco que o contém — não pelo contêiner de rolagem, se este não estiver posicionado. Sem o `relative`, o `<caption>` e os textos das ações escapavam do recorte e esticavam o documento: entre 640px e 767px a página inteira rolava na horizontal.
+
 **Acessibilidade.** Tabela semântica com `<caption>`, `scope` e o nome do produto como `th scope="row"`; ações com texto complementar em `sr-only` para não repetir "Editar" sem contexto; contadores em `aria-live`; diálogo de exclusão sobre o `<dialog>` nativo, que entrega prisão de foco e fechamento por `Esc` pelo navegador; link "Pular para o conteúdo" como primeira parada do Tab; alerta de estoque baixo com rótulo além da cor; foco visível global e `prefers-reduced-motion` respeitado.
 
 **Responsivo.** Abaixo de 640px a tabela vira lista de cartões — com ações por linha, rolagem lateral esconderia justamente os botões. A troca é por CSS, não por `window.innerWidth` em estado, que renderizaria uma vez com a suposição errada.
