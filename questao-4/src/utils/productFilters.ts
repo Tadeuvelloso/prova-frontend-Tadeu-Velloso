@@ -61,6 +61,24 @@ export function filterByPriceRange(
 }
 
 /**
+ * Quantas páginas a lista ocupa.
+ *
+ * Nunca devolve zero: uma lista vazia continua sendo "página 1 de 1". Zero
+ * faria a página atual virar `Math.min(1, 0) === 0`, um número de página que
+ * não existe, e o rodapé exibiria "Página 0 de 0".
+ */
+export function getTotalPages(totalItems: number, pageSize: number): number {
+  return Math.max(1, Math.ceil(totalItems / pageSize))
+}
+
+/** Recorta a fatia visível. `page` começa em 1, como aparece na interface. */
+export function paginate<T>(items: T[], page: number, pageSize: number): T[] {
+  const start = (page - 1) * pageSize
+
+  return items.slice(start, start + pageSize)
+}
+
+/**
  * Converte a escolha da interface no filtro que vai à API.
  *
  * "Todos" vira objeto vazio de propósito: sem o parâmetro `active`, o backend

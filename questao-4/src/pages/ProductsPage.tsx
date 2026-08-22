@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Button } from '../components/common/Button'
 import { EmptyState } from '../components/common/EmptyState'
 import { ErrorState } from '../components/common/ErrorState'
+import { Pagination } from '../components/common/Pagination'
 import { ProductsFilters } from '../components/modules/ProductsFilters/ProductsFilters'
 import { ProductsTable } from '../components/modules/ProductsTable/ProductsTable'
 import { ProductsTableSkeleton } from '../components/modules/ProductsTable/ProductsTableSkeleton'
@@ -50,7 +51,12 @@ export function ProductsPage() {
         maxPrice={filters.maxPriceInput}
         onMaxPriceChange={filters.setMaxPriceInput}
         status={status}
-        onStatusChange={setStatus}
+        onStatusChange={(value) => {
+          setStatus(value)
+          // Mesmo motivo dos demais filtros: a lista muda de tamanho, e a
+          // página em que a pessoa estava pode não existir na nova lista.
+          filters.resetPage()
+        }}
         hasInvertedRange={filters.hasInvertedRange}
         hasActiveFilters={isFiltering}
         onClear={() => {
@@ -76,12 +82,25 @@ export function ProductsPage() {
           }}
         />
       ) : (
-        // Esmaece durante o refetch do filtro de status, sinalizando que o
-        // conteúdo está sendo substituído sem trocar tudo pelo esqueleto —
-        // é o par visual do `keepPreviousData`.
-        <div className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
-          <ProductsTable products={filters.matchedProducts} />
-        </div>
+        <>
+          {/* Esmaece durante o refetch do filtro de status, sinalizando que o
+              conteúdo está sendo substituído sem trocar tudo pelo esqueleto —
+              é o par visual do `keepPreviousData`. */}
+          <div
+            className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}
+          >
+            <ProductsTable products={filters.visibleProducts} />
+          </div>
+
+          <Pagination
+            page={filters.page}
+            totalPages={filters.totalPages}
+            pageSize={filters.pageSize}
+            totalItems={filters.matchedProducts.length}
+            onPageChange={filters.setPage}
+            onPageSizeChange={filters.setPageSize}
+          />
+        </>
       )}
     </div>
   )
