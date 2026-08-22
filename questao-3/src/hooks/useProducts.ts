@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { getProducts } from '../services/productsService'
 import type { Category } from '../types/product'
 
@@ -14,5 +14,8 @@ export function useProducts(category?: Category) {
   return useQuery({
     queryKey: productsQueryKey(category),
     queryFn: () => getProducts(category),
+    // Mantém a tabela anterior na tela enquanto a nova categoria carrega,
+    // em vez de trocar tudo pelo estado de loading a cada mudança de filtro.
+    placeholderData: keepPreviousData,
   })
 }

@@ -1,14 +1,27 @@
+import { useState } from 'react'
 import { EmptyState } from '../components/common/EmptyState'
 import { ErrorState } from '../components/common/ErrorState'
 import { SearchInput } from '../components/common/SearchInput'
+import { Select } from '../components/common/Select'
 import { ProductsTable } from '../components/modules/ProductsTable/ProductsTable'
+import { useCategories } from '../hooks/useCategories'
 import { useProducts } from '../hooks/useProducts'
 import { useProductsFilters } from '../hooks/useProductsFilters'
 
-export function ProductsPage() {
-  const { data, isPending, isError, error, refetch, isFetching } = useProducts()
+const ALL_CATEGORIES = ''
 
-  // Chamado antes dos early returns: hook não pode ficar atrás de condicional.
+export function ProductsPage() {
+  // A categoria fica acima do useProducts porque é o único filtro que vai ao
+  // servidor: mudar aqui muda a queryKey e, com ela, a requisição.
+  const [category, setCategory] = useState(ALL_CATEGORIES)
+
+  const { data, isPending, isError, error, refetch, isFetching } = useProducts(
+    category || undefined,
+  )
+
+  // Se as categorias falharem, o select some mas a tabela continua de pé.
+  const { data: categories = [] } = useCategories()
+
   const { search, setSearch, sort, toggleSort, visibleProducts, totalCount } =
     useProductsFilters(data ?? [])
 
@@ -36,17 +49,32 @@ export function ProductsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <SearchInput
           value={search}
           onChange={setSearch}
           placeholder="Pesquisar por nome ou categoria…"
         />
 
-        <p aria-live="polite" className="text-sm text-content-muted">
-          {hasSearch
-            ? `${visibleProducts.length} de ${totalCount} produtos`
-            : `${totalCount} produtos`}
+        {categories.length > 0 && (
+          <Select
+            id="category-filter"
+            label="Filtrar por categoria"
+            value={category}
+            onChange={setCategory}
+            options={[
+              { value: ALL_CATEGORIES, label: 'Todas as categorias' },
+              ...categories.map((name) => ({ value: name, label: name })),
+            ]}
+          />
+        )}
+
+        <p aria-live="polite" className="ml-auto text-sm text-content-muted">
+          {isFetching
+            ? 'Atualizando…'
+            : hasSearch
+              ? `${visibleProducts.length} de ${totalCount} produtos`
+              : `${totalCount} produtos`}
         </p>
       </div>
 
@@ -54,11 +82,15 @@ export function ProductsPage() {
         <EmptyState
           title="Nenhum produto encontrado"
           description={
-            hasSearch ? `Nada corresponde a “${search.trim()}”. Tente outro termo.` : undefined
+            hasSearch
+              ? `Nada corresponde a “${search.trim()}”. Tente outro termo.`
+              : 'Esta categoria não tem produtos.'
           }
         />
       ) : (
-        <ProductsTable products={visibleProducts} sort={sort} onSort={toggleSort} />
+        <div className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}>
+          <ProductsTable products={visibleProducts} sort={sort} onSort={toggleSort} />
+        </div>
       )}
     </div>
   )
