@@ -62,3 +62,11 @@ export type UpdateProductInput = Partial<Omit<CreateProductInput, 'sku'>>
 export interface ProductFilters {
   active?: boolean
 }
+
+/**
+ * Como o status aparece na interface.
+ *
+ * Três opções, e não um booleano, porque "todos" é um estado legítimo e
+ * diferente de "ativos": é a ausência do filtro.
+ */
+export type ProductStatusFilter = 'all' | 'active' | 'inactive'
