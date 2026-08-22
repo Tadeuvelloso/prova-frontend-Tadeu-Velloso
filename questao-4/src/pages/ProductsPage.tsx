@@ -5,7 +5,7 @@ import { EmptyState } from '../components/common/EmptyState'
 import { ErrorState } from '../components/common/ErrorState'
 import { Pagination } from '../components/common/Pagination'
 import { ProductsFilters } from '../components/modules/ProductsFilters/ProductsFilters'
-import { ProductsTable } from '../components/modules/ProductsTable/ProductsTable'
+import { ProductsList } from '../components/modules/ProductsTable/ProductsList'
 import { DeleteProductDialog } from '../components/modules/ProductsTable/DeleteProductDialog'
 import { ProductsTableSkeleton } from '../components/modules/ProductsTable/ProductsTableSkeleton'
 import { useProductMutations } from '../hooks/useProductMutations'
@@ -118,7 +118,7 @@ export function ProductsPage() {
           <div
             className={isFetching ? 'opacity-60 transition-opacity' : 'transition-opacity'}
           >
-            <ProductsTable
+            <ProductsList
               products={filters.visibleProducts}
               canEdit={canEdit}
               canDelete={canDelete}
