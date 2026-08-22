@@ -11,6 +11,17 @@ export interface ApiSuccess<T> {
   data: T
 }
 
+/**
+ * Sucesso sem corpo de dados.
+ *
+ * O `DELETE /products/:id` responde `{ success, message }` e não devolve o
+ * recurso removido — daí não caber em `ApiSuccess<T>`.
+ */
+export interface ApiMessage {
+  success: true
+  message: string
+}
+
 export interface ApiErrorPayload {
   success: false
   message: string
