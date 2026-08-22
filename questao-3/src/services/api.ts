@@ -8,8 +8,9 @@ export const api = axios.create({
 })
 
 
-// Interceptor de response: normaliza toda falha em `AppError` antes que ela cchore: setup tailwind v4 and remove vite boilerplate
-
+// Interceptor de response: normaliza toda falha em `AppError` antes que ela
+// chegue aos services, hooks e componentes. Nenhuma camada acima precisa
+// importar Axios para tratar erro.
 
 api.interceptors.response.use(
   (response) => response,
