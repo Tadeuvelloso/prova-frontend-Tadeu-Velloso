@@ -2,6 +2,14 @@ import type { UserRole } from '../types/auth'
 
 export type ProductAction = 'create' | 'update' | 'delete'
 
+/** Como cada papel aparece na interface. O backend usa os valores crus. */
+export const ROLE_LABEL: Record<UserRole, string> = {
+  admin: 'Administrador',
+  gerente: 'Gerente',
+  operador: 'Operador',
+  visualizador: 'Visualizador',
+}
+
 /**
  * Espelha o `authorize([...])` das rotas de produto do backend
  * (`interfaces/routes/product.routes.ts`):
