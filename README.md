@@ -94,7 +94,65 @@ src/
 
 ![Diagrama do fluxo de autenticação](diagrama_autenticação200.png)
 
-###### Para tratamento de erros globais usaria os interceptadores do Axios, dessa forma toda requisição é verificada e em caso de algum erro aplicamos as regras equivalente, 401 logout como exemplo. Mas tratando todos erros http de forma equivalente com feedbacks relativos a regra de negócio, sempre preservando os dados do usuário, dessa forma mensagens muito específicas facilitariam o uso indevido ou de um usuário mal intecionado. O feedback para o usuário deve ser feito através de toasts com mensagens referentes a ação realizada, para sucesso e falha, o loadings devem ser retornados para o usuário para indicar o andamente de uma requeição assincrona que impede alguma vizualização ou ação, podendo ser mais específica ou global. O uso do react query e do zustand são fundamentais para manter a coererencia específica de cada ação. Esses recursos podem ser preventivos para excesso de requisições e prevenção de race conditions. Um provider encapsulando toda camada de componentes autorizados pelo usuario seriam protegidas por um provider que só pode renderizar seus componetes se houver o token correspondente, nessa mesma arvore que ficaria os toasts e feedbacks.
+##### Para tratamento de erros globais usaria os interceptadores do Axios, dessa forma toda requisição é verificada e em caso de algum erro aplicamos as regras equivalente, 401 logout como exemplo. Mas tratando todos erros http de forma equivalente com feedbacks relativos a regra de negócio, sempre preservando os dados do usuário, dessa forma mensagens muito específicas facilitariam o uso indevido ou de um usuário mal intecionado. O feedback para o usuário deve ser feito através de toasts com mensagens referentes a ação realizada, para sucesso e falha, o loadings devem ser retornados para o usuário para indicar o andamente de uma requeição assincrona que impede alguma vizualização ou ação, podendo ser mais específica ou global. O uso do react query e do zustand são fundamentais para manter a coererencia específica de cada ação. Esses recursos podem ser preventivos para excesso de requisições e prevenção de race conditions. Um provider encapsulando toda camada de componentes autorizados pelo usuario seriam protegidas por um provider que só pode renderizar seus componetes se houver o token correspondente, nessa mesma arvore que ficaria os toasts e feedbacks.
+
+## Questão 2: 
+
+##### Na Questão 1 optei por uma arquitetura por responsabilidades porque o escopo proposto era pequeno. Para um projeto de médio/grande porte eu inverteria essa chave e iria de arquitetura modular, por features. A razão é a que vivi na prática e comentei na primeira questão: enquanto o projeto é pequeno, agrupar por responsabilidade funciona bem, mas quando as features crescem as pastas `components/`, `hooks/` e `services/` viram depósitos com dezenas de arquivos de contextos que não conversam entre si, e uma alteração simples obriga o desenvolvedor a passear por cinco pastas diferentes para entender um fluxo só. Na arquitetura modular cada feature é uma pasta fechada que carrega dentro dela os seus componentes, hooks, services, store e tipos, e a separação por responsabilidades continua existindo, só que dentro do módulo. O ganho é de manutenção e de evolução: uma feature nova é uma pasta nova, não uma dispersão de arquivos em pastas já lotadas, e times diferentes conseguem trabalhar em módulos diferentes sem colidir no mesmo diretório.
+
+```
+src/
+│
+├── modules/                        // Responsável: features de negócio
+│   ├── products/
+│   │   ├── components/             // Componentes exclusivos do módulo
+│   │   │   ├── ProductForm/
+│   │   │   └── ProductsTable/
+│   │   ├── hooks/                  // useProducts, useProductForm
+│   │   ├── services/               // Endpoints do domínio de produtos
+│   │   ├── store/                  // Estado local do módulo
+│   │   ├── types/                  // Tipos do domínio
+│   │   ├── utils/                  // Regras puras (filtros, cálculos)
+│   │   └── index.ts                // API pública do módulo
+│   ├── stock/
+│   ├── financial/
+│   ├── customers/
+│   └── auth/
+│
+├── shared/                         // Responsável: o que é usado por 2+ módulos
+│   ├── components/
+│   │   ├── ui/                     // Wrappers do design system (MUI)
+│   │   └── layout/                 // Header, Sidebar, MainLayout
+│   ├── hooks/                      // useDebounce, usePagination, useModal
+│   ├── services/
+│   │   └── api.ts                  // Instância axios com interceptadores
+│   ├── utils/                      // Formatters, validators, errorHandler
+│   └── types/                      // Tipos genéricos de API e responses
+│
+├── theme/                          // Responsável: design system
+│   ├── theme.ts                    // Tema MUI (cores, tipografia, spacing)
+│   └── overrides.ts                // Customização por componente
+│
+├── routes/                         // Responsável: rotas e proteção de acesso
+│   ├── index.tsx
+│   └── ProtectedRoute.tsx
+│
+├── config/                         // Variáveis de ambiente e configs globais
+├── App.tsx
+└── main.tsx
+```
+
+##### Componentização. A regra que sigo é separar o componente que sabe de negócio do componente que só sabe desenhar. Os componentes de `shared/components/ui` não conhecem produto, estoque nem financeiro, recebem props e devolvem interface, e por isso podem ser usados em qualquer módulo. Já um `ProductForm` vive dentro do módulo de produtos porque só faz sentido ali, e mesmo ele delega a lógica para um hook. Para um projeto desse porte eu optaria por uma biblioteca de componentes, e a minha escolha seria o MUI. O motivo não é economizar tempo escrevendo botão, é padronização: com o MUI o design fica centralizado no tema, então espaçamento, cor, tipografia e variantes de componente são definidos uma vez em `theme/` e valem para o projeto inteiro. Quando o projeto cresce e entram desenvolvedores novos, um componente criado por qualquer um já nasce dentro do padrão visual em vez de virar mais uma variação de botão com um cinza ligeiramente diferente. O cuidado que tomo é não espalhar o MUI cru por todo lado: componentes muito usados ganham um wrapper em `shared/components/ui`, o que dá um ponto único para ajustar comportamento padrão e evita que uma futura troca de biblioteca vire uma varredura em centenas de arquivos.
+
+##### Hooks customizados. Os hooks são onde a lógica de fato mora. Um componente que precisa listar produtos não deveria conhecer React Query, Axios ou o formato da resposta da API, ele chama `useProducts()` e recebe dados, carregando e erro. Isso mantém o componente legível e concentra a mudança num lugar só quando o backend muda um campo. Separo os hooks em dois níveis: os genéricos ficam em `shared/hooks` porque não têm domínio nenhum, como `useDebounce`, `usePagination` ou `useModal`, e os de negócio ficam dentro do módulo, como `useProductForm`. Numa tela de listagem esse desenho fica claro quando a responsabilidade é quebrada em dois: um hook cuida da requisição e do cache dos dados, e outro cuida de busca, ordenação e paginação sobre o que já foi carregado. A tabela recebe a lista pronta e não sabe de onde ela veio nem como foi filtrada, então o dia em que a ordenação passar a ser feita pelo backend muda só o hook e a interface continua igual.
+
+##### Reutilização de código. O ponto que mais evita retrabalho é o `index.ts` de cada módulo funcionando como API pública. O que está exportado ali pode ser consumido por outro módulo, o resto é interno, e isso impede aquele acoplamento silencioso em que um módulo importa um arquivo de dentro de outro e passa a quebrar sempre que o vizinho muda um detalhe. Sobre promover código para `shared`, evito antecipar: só sobe quando o mesmo comportamento aparece em pelo menos dois módulos de verdade. Abstrair cedo demais costuma gerar um componente cheio de flags para atender casos que ainda nem existem, e isso é mais caro de manter do que uma duplicação pontual. Além disso mantenho os utilitários de formatação e validação em `shared/utils`, porque moeda, data e mensagens de erro precisam ser iguais em todas as telas, e é o tipo de coisa que diverge rápido se cada módulo escrever a sua.
+
+##### Separação entre regras de negócio e interface. Trabalho com três camadas bem definidas. Os services só fazem requisição, não têm lógica nem decidem nada. As regras puras, cálculos, filtros e validações ficam em funções fora do React, o que as torna previsíveis e testáveis sem precisar montar componente. Os hooks orquestram, ligando service, estado e regra. E o componente fica com a interface, ou seja, o que renderizar e como reagir ao clique. Um sinal claro de que algo saiu do lugar é encontrar `if` de regra de negócio dentro do JSX ou um `.filter()` com cálculo direto no componente, é o momento de mover aquilo para uma função pura ou para o hook. O ganho prático é que a regra passa a poder ser testada, reaproveitada em outra tela e alterada sem risco de quebrar layout.
+
+##### Estratégias para testes. Eu penso os testes por camada, seguindo a divisão acima. As funções puras de regra de negócio são as primeiras a testar, com Vitest, porque são baratas, rápidas e é onde um erro causa prejuízo real, um cálculo de total ou uma validação errada. Os hooks testo com `renderHook`, verificando o comportamento diante de sucesso e de falha da requisição. Nos componentes uso Testing Library e testo comportamento em vez de implementação, ou seja, o usuário digita na busca e a linha esperada aparece, e não se o estado interno mudou, porque teste amarrado à implementação quebra em toda refatoração e acaba sendo deletado pelo time. Para as telas que dependem de API uso o MSW e simulo a resposta no nível da rede, o que permite testar também o caminho do erro e do carregando, que na prática é onde mais aparece bug. E reservo testes de ponta a ponta, com Playwright ou Cypress, para poucos fluxos críticos, como login e o cadastro principal do sistema, porque são testes caros de manter e não compensa cobrir tudo com eles. Não persigo porcentagem de cobertura, prefiro cobrir bem o que é regra de negócio e o que já quebrou uma vez.
+
+##### Boas práticas que costumo seguir. TypeScript com configuração estrita, evitando `any`, porque num projeto grande o tipo é o que documenta o contrato com a API e avisa em tempo de build o que só apareceria em produção. ESLint e Prettier rodando no commit com Husky e lint-staged, para que discussão de formatação não ocupe espaço no code review. Alias de importação em vez de caminhos relativos longos, o que também facilita mover arquivo de lugar. Commits pequenos e descritivos, no padrão de conventional commits, e pull requests curtas, porque PR grande não é revisada de verdade. Variáveis de ambiente centralizadas em `config`, nunca URL fixa espalhada no código. Tratamento de erro e feedback centralizados como descrevi na Questão 1, com interceptador no Axios e toasts padronizados, para que o usuário sempre receba resposta da ação. Carregamento por rota com lazy loading, que num projeto modular sai quase de graça, já que cada módulo é uma fronteira natural de divisão do bundle. E atenção à acessibilidade desde o começo, usando os componentes semânticos do MUI, rótulo em campo de formulário e navegação por teclado, porque adaptar depois costuma custar mais do que fazer certo desde o início.
 
 
 ## Questão 3: 
