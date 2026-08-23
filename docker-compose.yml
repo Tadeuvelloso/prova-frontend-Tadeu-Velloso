@@ -1,0 +1,29 @@
+services:
+  questao-3:
+    build: ./questao-3
+    image: prova-frontend-questao-3
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  questao-4:
+    build:
+      context: ./questao-4
+      args:
+        # Definida no ambiente ou em um `.env` na raiz; vazia, o app cai no
+        # backend padrão de `src/config/env.ts`.
+        VITE_API_URL: ${VITE_API_URL:-}
+    image: prova-frontend-questao-4
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3

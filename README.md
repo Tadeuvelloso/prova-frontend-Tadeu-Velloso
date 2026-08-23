@@ -155,7 +155,7 @@ src/
 
 ## Questão 3: 
 
-##### O projeto está em `questao-3/`. Para rodar: `cd questao-3 && npm install && npm run dev`. A aplicação consome a Fake Store API (`https://fakestoreapi.com`) e exibe o catálogo de produtos em uma tabela com busca por texto, ordenação por título, preço e avaliação, filtro por categoria e paginação.
+##### O projeto está em `questao-3/`. Para rodar: `cd questao-3 && npm install && npm run dev`, ou `docker compose up -d questao-3` a partir da raiz (http://localhost:8080), sem precisar de Node instalado. A aplicação consome a Fake Store API (`https://fakestoreapi.com`) e exibe o catálogo de produtos em uma tabela com busca por texto, ordenação por título, preço e avaliação, filtro por categoria e paginação.
 
 ##### Escolha da API. Optei pela Fake Store API por ser uma das citadas no enunciado e por ter campos que rendem uma tabela de verdade: título, categoria, preço e avaliação com nota e número de votos. Antes de decidir a arquitetura, testei os endpoints um a um, e o que encontrei mudou o desenho da solução: a API **não suporta busca** (`?q=` é ignorado e devolve os 20 produtos), **não ordena por campo** (só existe `?sort=asc|desc`, que ordena por `id`, e `?sortBy=price` é ignorado) e **não pagina** (`?offset=` é ignorado; só há `?limit=` truncando do início). O que ela oferece de verdade é o filtro por categoria, com endpoint dedicado em `/products/category/:name` e a lista em `/products/categories`. Por isso a divisão do projeto é essa: **categoria vai ao servidor, busca e ordenação acontecem no cliente**. Não é preferência, é o que a API permite — e deixo explícito porque um filtro client-side sobre 20 itens é adequado, mas não escalaria para um catálogo real, onde busca e ordenação teriam que virar query params.
 
@@ -169,7 +169,7 @@ src/
 
 ## Questão 4:
 
-##### O projeto está em `questao-4/`. Para rodar: `cd questao-4 && npm install && npm run dev`. Acesso de demonstração: `admin@bebidaspro.com` / `admin123`. A aplicação faz o gerenciamento completo de produtos — listagem, cadastro, edição, exclusão, paginação, filtros por nome e faixa de preço, validação de formulário e feedback de sucesso e erro — sobre um backend real, o [distribuidora-backend](https://github.com/lucaspfeliciano/distribuidora-backend) hospedado no Render. A tela de login existe e a autenticação é JWT de verdade, não simulada.
+##### O projeto está em `questao-4/`. Para rodar: `cd questao-4 && npm install && npm run dev`, ou `docker compose up -d questao-4` a partir da raiz (http://localhost:8081). Acesso de demonstração: `admin@bebidaspro.com` / `admin123`. A aplicação faz o gerenciamento completo de produtos — listagem, cadastro, edição, exclusão, paginação, filtros por nome e faixa de preço, validação de formulário e feedback de sucesso e erro — sobre um backend real, o [distribuidora-backend](https://github.com/lucaspfeliciano/distribuidora-backend) hospedado no Render. A tela de login existe e a autenticação é JWT de verdade, não simulada.
 
 ##### O que a API permite, e o que isso forçou. Como na Questão 3, testei os endpoints antes de desenhar a solução, e de novo o que encontrei mudou o projeto. O `GET /products` **não pagina e não filtra por nome nem por faixa de preço**: o controller só lê `active`, `category`, `branchId` e `lowStock`, e qualquer outro parâmetro é ignorado. Então a divisão ficou: **status vai ao servidor, busca por nome, faixa de preço e paginação acontecem no cliente**. Não é preferência, é o que a API oferece — e um filtro em memória é adequado sobre a lista já carregada, mas não escalaria para um catálogo grande. Encontrei mais três limites que viraram decisão de interface: o `PUT /products/:id` **não aceita `sku` nem `stock`**, ou seja, o SKU é imutável depois de criado — expressei isso no tipo, com `UpdateProductInput = Partial<Omit<CreateProductInput, 'sku'>>`, para o compilador impedir o envio em vez de deixar a regra num comentário, e na edição o campo aparece travado com a explicação; o `POST /auth/register` é protegido por `authorize([ADMIN])`, então tela pública de cadastro receberia 401 antes de chegar ao banco, e por isso existe apenas o login; e as rotas de produto têm RBAC — criar e editar exigem `admin` ou `gerente`, excluir exige `admin` —, o que a interface espelha escondendo as ações que o papel não permite, deixando claro que isso é experiência de uso e não segurança, já que quem autoriza de fato é o backend.
 
@@ -221,6 +221,8 @@ src/
 #### O que faria diferente hoje: Implementaria desde o início mais testes automatizados, tanto unitários quanto end-to-end. Também deixaria a documentação mais robusta. E pensaria mais cedo sobre como escalar o processamento de áudio.
 
 #### Maior desafio: Foi entender que desenvolver mobile é fundamentalmente diferente de web, né. Não estamos lidando com DOM nem navegador, as limitações e oportunidades são completamente diferentes. Também foi complexo fazer processamento de áudio paralelo sem travar a UI usando Web Workers.
+
+#### Meu perfil do github: https://github.com/Tadeuvelloso
 
 ### Auxilio de AI:
 

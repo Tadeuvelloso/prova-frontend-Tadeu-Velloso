@@ -17,6 +17,21 @@ Outros comandos: `npm run build` (typecheck + build de produção), `npm run lin
 
 Não é necessário criar `.env`: `src/config/env.ts` tem a URL da API como padrão. O `.env.example` existe para apontar a outro backend.
 
+### Com Docker
+
+A partir da raiz do repositório:
+
+```bash
+docker compose up -d questao-4   # http://localhost:8081
+```
+
+Build multi-stage: o Node existe só para gerar o `dist` e fica fora da imagem final, que é um nginx servindo os arquivos estáticos (~26 MB). Não é necessário ter Node instalado.
+
+Duas coisas que o `Dockerfile` e o `nginx.conf` precisam resolver aqui:
+
+- **A URL da API entra no build, não na execução.** O Vite grava `VITE_API_URL` dentro do bundle, então apontar a outro backend exige rebuildar: `VITE_API_URL=https://outro/api docker compose build questao-4`. Sem o argumento, vale o padrão de `src/config/env.ts`.
+- **Qualquer rota desconhecida devolve o `index.html`.** As rotas são client-side; sem esse fallback, recarregar `/produtos/novo` daria 404 do nginx, porque esse caminho não existe como arquivo.
+
 > **O primeiro acesso do dia pode levar até um minuto.** O plano gratuito do Render hiberna o serviço após ~15 minutos sem tráfego. Daí o `timeout` de 60s em `src/config/api.config.ts` e o aviso que a tela de login mostra quando a espera passa de 5 segundos.
 
 ## Stack

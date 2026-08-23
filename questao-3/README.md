@@ -13,6 +13,16 @@ Outros comandos: `npm run build` (typecheck + build de produção), `npm run lin
 
 Não há variáveis de ambiente: a Fake Store API é pública e não exige autenticação.
 
+### Com Docker
+
+A partir da raiz do repositório:
+
+```bash
+docker compose up -d questao-3   # http://localhost:8080
+```
+
+Build multi-stage: o Node existe só para gerar o `dist` e fica fora da imagem final, que é um nginx servindo os arquivos estáticos (~26 MB). Não é necessário ter Node instalado.
+
 ## Stack
 
 | Ferramenta | Papel |
